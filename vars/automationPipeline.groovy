@@ -30,6 +30,7 @@ def doDeploy(deployEnv, deploymentType) {
         stage("${deployEnv}-Acceptance") {            
             script {
 				echo "${deployEnv}-Acceptance Stage"
+				error("Acceptance tests failed with result")
 			}
         }
     }
