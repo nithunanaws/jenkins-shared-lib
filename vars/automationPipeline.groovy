@@ -66,13 +66,7 @@ def call(body) {
         }
 
         stages {
-            stage('Deployment') {
-                steps {
-                    script {
-                        deployApp("FUNCTIONAL")
-                    }
-                }
-            }                        
+            deployApp("FUNCTIONAL")                        
         }        
     }
 }
