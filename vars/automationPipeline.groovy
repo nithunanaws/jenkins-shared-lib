@@ -58,7 +58,7 @@ def call(body) {
         }
 
         stages {
-            stage("Deployment") {
+            stage(env. deploymentType + '-Deployment') {
                 steps {
                     script {
                         deployApp(env.deploymentType)
