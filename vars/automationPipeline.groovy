@@ -27,7 +27,7 @@ def doDeploy(deployEnv, deploymentType) {
 		}
     }
     if(deployEnv == "INT") {
-        stage("${deployEnv}-Acceptance")            
+        stage("${deployEnv}-Acceptance") {            
             script {
 				echo "Acceptance Stage"
 			}
