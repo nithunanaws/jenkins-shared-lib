@@ -54,14 +54,14 @@ def call(body) {
         agent any
 
         environment {            
-            deploymentType = "${pipelineParams.deploymentType}"
+            deploymentType = "FUNCTIONAL"
         }
 
         stages {
-            stage('Deployment') {
+            stage("${env.deploymentType}-Deployment") {
                 steps {
                     script {
-                        deployApp("FUNCTIONAL")
+                        deployApp(${env.deploymentType})
                     }
                 }
             }                        
