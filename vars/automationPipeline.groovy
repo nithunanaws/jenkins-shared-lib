@@ -69,7 +69,7 @@ def call(body) {
             stage('Deployment') {
                 steps {
                     script {
-                        deployApp(${env.deploymentType})
+                        deployApp("FUNCTIONAL")
                     }
                 }
             }                        
