@@ -16,36 +16,28 @@ def deployApp(deploymentType) {
 def doDeploy(deployEnv, deploymentType) {
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
-            steps {
-                script {
-                    echo "${deploymentType}-Build Stage"
-                }
-            }
+            script {
+				echo "${deploymentType}-Build Stage"
+			}
         }
     }    
     stage("${deployEnv}-Deploy") {        
-        steps {
-            script {
-                echo "${deployEnv}-Deploy Stage"
-            }
-        }
+        script {
+			echo "${deployEnv}-Deploy Stage"
+		}
     }
     if(deployEnv == "INT") {
         stage('Acceptance') {            
-            steps {
-                script {
-                    echo "Acceptance Stage"
-                }
-            }
+            script {
+				echo "Acceptance Stage"
+			}
         }
     }
     if(deployEnv == "QAR") {
         stage('Regression') {            
-            steps {
-                script {
-                    echo "Regression Stage"
-                }
-            }
+            script {
+				echo "Regression Stage"
+			}
         }
     }    
 }
@@ -66,7 +58,13 @@ def call(body) {
         }
 
         stages {
-            deployApp("FUNCTIONAL")                        
+            stage('Deployment') {
+                steps {
+                    script {
+                        deployApp("FUNCTIONAL")
+                    }
+                }
+            }                        
         }        
     }
 }
