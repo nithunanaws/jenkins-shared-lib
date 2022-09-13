@@ -58,13 +58,20 @@ def call(body) {
         }
 
         stages {
-            stage(${deploymentType} + '-Deployment') {
+            stage("Deployment") {
                 steps {
                     script {
                         deployApp(${deploymentType})
                     }
                 }
             }                        
-        }        
+        } 
+		post {            
+            success {
+                script {
+                    currentBuild.description = "${env.deploymentType}"                    
+                }
+            }            
+        }
     }
 }
