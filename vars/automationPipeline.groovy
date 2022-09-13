@@ -61,7 +61,7 @@ def call(body) {
             stage("Deployment") {
                 steps {
                     script {
-                        deployApp(${deploymentType})
+                        deployApp(env.deploymentType)
                     }
                 }
             }                        
@@ -69,7 +69,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = "${env.deploymentType}"                    
+                    currentBuild.description = env.deploymentType                  
                 }
             }            
         }
