@@ -26,24 +26,18 @@ def doDeploy(deployEnv, deploymentType) {
 			echo "${deployEnv}-Deploy Stage"
 		}
     }    
-	stage("INT-Acceptance") {  
-		when {
-            expression {
-                return ${deployEnv} == "INT"
-            }
-        }
+	stage("INT-Acceptance") {  		
 		script {
-			echo "${deployEnv}-Acceptance Stage"			
+			if(${deployEnv} == "INT") {
+				echo "${deployEnv}-Acceptance Stage"
+			}						
 		}
 	}    
-	stage("QAR-Regression") {
-		when {
-            expression {
-                return ${deployEnv} == "QAR"
-            }
-        }
+	stage("QAR-Regression") {		
 		script {
-			echo "${deployEnv}-Regression Stage"
+			if(${deployEnv} == "INT") {
+				echo "${deployEnv}-Regression Stage"
+			}			
 		}
 	}  
 }
