@@ -7,19 +7,20 @@ def getDeploymentEnvironments(deploymentType) {
 }
 
 def deployApp(pipelineParams) {
-    def envs = getDeploymentEnvironments(pipelineParams.deploymentType)
+	def deploymentType = pipelineParams.deploymentType ?: 'FUNCTIONAL'	
+    def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
-        doDeploy(deployEnv, pipelineParams)        
+        doDeploy(deployEnv, deploymentType, pipelineParams)        
     }
 }
 
-def doDeploy(deployEnv, pipelineParams) {
+def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
-        stage("${pipelineParams.deploymentType}-Build") {
+        stage("${deploymentType}-Build") {
             script {
 				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
-					echo "${pipelineParams.deploymentType}-Build Stage"
+					echo "${deploymentType}-Build Stage"
 				}
 				if(pipelineParams.buildDisabled != null && pipelineParams.buildDisabled == true) {					
 					Utils.markStageSkippedForConditional("${deployEnv}-Build")
