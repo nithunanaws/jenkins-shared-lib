@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
 
-def getdeploymentEnvironments(deploymentType) {
+def getDeploymentEnvironments(deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
     map[deploymentType] ?: 'INT,QAF'
 }
 
 def deployApp(deploymentType) {
-    def envs = getdeploymentEnvironments(deploymentType)
+    def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
         doDeploy(deployEnv, deploymentType)        
