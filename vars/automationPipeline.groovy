@@ -13,7 +13,7 @@ def deployApp(deploymentType, pipelineParams) {
     }
 }
 
-def doDeploy(deployEnv, deploymentType) {
+def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
