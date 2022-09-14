@@ -45,6 +45,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
             script {
 				if (pipelineParams.regressionDisabled == null ||  pipelineParams.regressionDisabled == false) {
 					echo "${deployEnv}-Regression Stage"
+					error("Regression tests failed with result")
 				}					
 			}
         }
