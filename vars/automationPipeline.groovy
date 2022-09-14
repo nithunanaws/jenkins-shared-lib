@@ -23,7 +23,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = "${pipelineParams.deploymentType}"                  
+                    currentBuild.description = "${pipelineParams.deploymentType} ? : 'FUNCTIONAL'"                  
                 }
             }            
         }
