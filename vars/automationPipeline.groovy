@@ -17,29 +17,37 @@ def doDeploy(deployEnv, deploymentType) {
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
-				echo "${deploymentType}-Build Stage"
+				if (pipelineParams.buildDisabled == null ||  pipelineParams.buildDisabled == false) {
+					echo "${deploymentType}-Build Stage"
+				}				
 			}
         }
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			echo "${deployEnv}-Deploy Stage"
-		}
-    }    
-	stage("INT-Acceptance") {  		
-		script {
-			if(deployEnv == "INT") {
-				echo "${deployEnv}-Acceptance Stage"
-			}						
-		}
-	}    
-	stage("QAR-Regression") {		
-		script {
-			if(deployEnv == "QAR") {
-				echo "${deployEnv}-Regression Stage"
+			if (pipelineParams.deployDisabled == null ||  pipelineParams.deployDisabled == false) {
+				echo "${deployEnv}-Deploy Stage"
 			}			
 		}
-	}  
+    }
+    if(deployEnv == "INT") {
+        stage("${deployEnv}-Acceptance") {            
+            script {
+				if (pipelineParams.acceptanceDisabled == null ||  pipelineParams.acceptanceDisabled == false) {
+					echo "${deployEnv}-Acceptance Stage"
+				}							
+			}
+        }
+    }
+    if(deployEnv == "QAR") {
+        stage("${deployEnv}-Regression") {            
+            script {
+				if (pipelineParams.regressionDisabled == null ||  pipelineParams.regressionDisabled == false) {
+					echo "${deployEnv}-Regression Stage"
+				}					
+			}
+        }
+    }    
 }
 
 def call(body) {
