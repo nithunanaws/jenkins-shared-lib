@@ -6,19 +6,19 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams) {
-    def envs = getDeploymentEnvironments(deploymentType)
+def deployApp(pipelineParams) {
+    def envs = getDeploymentEnvironments(pipelineParams.deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams)        
+        doDeploy(deployEnv, pipelineParams)        
     }
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams) {
+def doDeploy(deployEnv, pipelineParams) {
     if(deployEnv == "INT") {
-        stage("${deploymentType}-Build") {
+        stage("${pipelineParams.deploymentType}-Build") {
             script {
-				if (pipelineParams.buildDisabled == null ||  pipelineParams.buildDisabled == false) {
+				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
 					echo "${deploymentType}-Build Stage"
 				}
 				if(pipelineParams.buildDisabled != null && pipelineParams.buildDisabled == true) {					
@@ -29,7 +29,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			if (pipelineParams.deployDisabled == null ||  pipelineParams.deployDisabled == false) {
+			if (pipelineParams.deployDisabled == null || pipelineParams.deployDisabled == false) {
 				echo "${deployEnv}-Deploy Stage"
 			}
 			if(pipelineParams.deployDisabled != null && pipelineParams.deployDisabled == true) {					
@@ -40,7 +40,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				if (pipelineParams.acceptanceDisabled == null ||  pipelineParams.acceptanceDisabled == false) {
+				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
 					echo "${deployEnv}-Acceptance Stage"
 					error("Acceptance tests failed with result")
 				}
@@ -53,7 +53,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "QAR") {
         stage("${deployEnv}-Regression") {            
             script {
-				if (pipelineParams.regressionDisabled == null ||  pipelineParams.regressionDisabled == false) {
+				if (pipelineParams.regressionDisabled == null || pipelineParams.regressionDisabled == false) {
 					echo "${deployEnv}-Regression Stage"
 					error("Regression tests failed with result")
 				}

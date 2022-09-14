@@ -11,15 +11,11 @@ def call(body) {
     pipeline {
         agent any
 
-        environment {            
-            deploymentType = "${pipelineParams.deploymentType}"
-        }
-
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {
-                        deploy.deployApp(env.deploymentType,pipelineParams)
+                        deploy.deployApp(pipelineParams)
                     }
                 }
             }                        
@@ -27,7 +23,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = env.deploymentType                  
+                    currentBuild.description = "${pipelineParams.deploymentType}"                  
                 }
             }            
         }
