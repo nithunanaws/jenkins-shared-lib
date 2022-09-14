@@ -35,6 +35,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
             script {
 				if (pipelineParams.acceptanceDisabled == null ||  pipelineParams.acceptanceDisabled == false) {
 					echo "${deployEnv}-Acceptance Stage"
+					error("Acceptance tests failed with result")
 				}							
 			}
         }
