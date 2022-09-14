@@ -5,11 +5,11 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType) {
+def deployApp(deploymentType, pipelineParams) {
     def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
-        doDeploy(deployEnv, deploymentType)        
+        doDeploy(deployEnv, deploymentType, pipelineParams)        
     }
 }
 
@@ -69,7 +69,7 @@ def call(body) {
             stage('Deployment Initiated') {
                 steps {
                     script {
-                        deployApp(env.deploymentType)
+                        deployApp(env.deploymentType,pipelineParams)
                     }
                 }
             }                        
