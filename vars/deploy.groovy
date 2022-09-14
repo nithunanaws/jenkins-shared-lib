@@ -19,7 +19,7 @@ def doDeploy(deployEnv, pipelineParams) {
         stage("${pipelineParams.deploymentType}-Build") {
             script {
 				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
-					echo "${deploymentType}-Build Stage"
+					echo "${pipelineParams.deploymentType}-Build Stage"
 				}
 				if(pipelineParams.buildDisabled != null && pipelineParams.buildDisabled == true) {					
 					Utils.markStageSkippedForConditional("${deployEnv}-Build")
