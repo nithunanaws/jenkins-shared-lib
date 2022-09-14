@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 def getDeploymentEnvironments(deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
@@ -36,7 +37,10 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 				if (pipelineParams.acceptanceDisabled == null ||  pipelineParams.acceptanceDisabled == false) {
 					echo "${deployEnv}-Acceptance Stage"
 					error("Acceptance tests failed with result")
-				}							
+				}
+				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {
+					Utils.markStageSkippedForConditional("${deployEnv}-Acceptance")
+				}
 			}
         }
     }
