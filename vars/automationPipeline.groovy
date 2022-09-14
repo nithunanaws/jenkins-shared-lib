@@ -20,7 +20,10 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
             script {
 				if (pipelineParams.buildDisabled == null ||  pipelineParams.buildDisabled == false) {
 					echo "${deploymentType}-Build Stage"
-				}				
+				}
+				if(pipelineParams.buildDisabled != null && pipelineParams.buildDisabled == true) {					
+					Utils.markStageSkippedForConditional("${deployEnv}-Build")
+				}
 			}
         }
     }    
@@ -28,7 +31,10 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         script {
 			if (pipelineParams.deployDisabled == null ||  pipelineParams.deployDisabled == false) {
 				echo "${deployEnv}-Deploy Stage"
-			}			
+			}
+			if(pipelineParams.deployDisabled != null && pipelineParams.deployDisabled == true) {					
+				Utils.markStageSkippedForConditional("${deployEnv}-Deploy")
+			}
 		}
     }
     if(deployEnv == "INT") {
@@ -38,7 +44,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					echo "${deployEnv}-Acceptance Stage"
 					error("Acceptance tests failed with result")
 				}
-				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {
+				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {					
 					Utils.markStageSkippedForConditional("${deployEnv}-Acceptance")
 				}
 			}
@@ -48,8 +54,12 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Regression") {            
             script {
 				if (pipelineParams.regressionDisabled == null ||  pipelineParams.regressionDisabled == false) {
-					echo "${deployEnv}-Regression Stage"					
-				}					
+					echo "${deployEnv}-Regression Stage"
+					error("Regression tests failed with result")
+				}
+				if(pipelineParams.regressionDisabled != null && pipelineParams.regressionDisabled == true) {					
+					Utils.markStageSkippedForConditional("${deployEnv}-Regression")
+				}
 			}
         }
     }    
