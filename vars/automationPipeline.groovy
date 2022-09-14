@@ -28,14 +28,14 @@ def doDeploy(deployEnv, deploymentType) {
     }    
 	stage("INT-Acceptance") {  		
 		script {
-			if(${deployEnv} == "INT") {
+			if(deployEnv == "INT") {
 				echo "${deployEnv}-Acceptance Stage"
 			}						
 		}
 	}    
 	stage("QAR-Regression") {		
 		script {
-			if(${deployEnv} == "QAR") {
+			if(deployEnv == "QAR") {
 				echo "${deployEnv}-Regression Stage"
 			}			
 		}
