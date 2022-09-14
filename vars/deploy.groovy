@@ -6,8 +6,7 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(pipelineParams) {
-	def deploymentType = pipelineParams.deploymentType ?: 'FUNCTIONAL'	
+def deployApp(deploymentType, pipelineParams) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {

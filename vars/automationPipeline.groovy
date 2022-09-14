@@ -1,5 +1,9 @@
 #!/usr/bin/env groovy
 
+def valueOrDefault(val, defaultVal) {
+    val != null ? val : defaultVal
+}
+
 def call(body) {
 	
 	// evaluate the body block, and collect configuration into the object
@@ -11,11 +15,15 @@ def call(body) {
     pipeline {
         agent any
 
+		environment {            
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')            
+        }
+		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {
-                        deploy.deployApp(pipelineParams)
+                        deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
             }                        
@@ -23,7 +31,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = ${pipelineParams.deploymentType} ? : "FUNCTIONAL"
+                    currentBuild.description = "${env.deploymentType}"
                 }
             }            
         }
