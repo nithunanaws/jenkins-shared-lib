@@ -34,8 +34,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Acceptance") {            
             script {
 				if (pipelineParams.acceptanceDisabled == null ||  pipelineParams.acceptanceDisabled == false) {
-					echo "${deployEnv}-Acceptance Stage"
-					error("Acceptance tests failed with result")
+					echo "${deployEnv}-Acceptance Stage"					
 				}							
 			}
         }
@@ -44,8 +43,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Regression") {            
             script {
 				if (pipelineParams.regressionDisabled == null ||  pipelineParams.regressionDisabled == false) {
-					echo "${deployEnv}-Regression Stage"
-					error("Regression tests failed with result")
+					echo "${deployEnv}-Regression Stage"					
 				}					
 			}
         }
