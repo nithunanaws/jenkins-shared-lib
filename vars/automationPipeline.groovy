@@ -35,7 +35,7 @@ def doDeploy(deployEnv, deploymentType) {
 	}    
 	stage("QAR-Regression") {		
 		script {
-			if(${deployEnv} == "INT") {
+			if(${deployEnv} == "QAR") {
 				echo "${deployEnv}-Regression Stage"
 			}			
 		}
