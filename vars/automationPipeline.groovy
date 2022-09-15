@@ -10,22 +10,20 @@ def call(body) {
     def pipelineParams= [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
-    body()
-	
-	def lastSuccessFullDeployment
+    body()	
 
     pipeline {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')            
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')			
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						lastSuccessFullDeployment = deploy.getLastSuccessfullDeployment(currentBuild.getPreviousBuild(), deploymentType)
+						def lastSuccessFullDeployment = deploy.getLastSuccessfullDeployment(currentBuild.getPreviousBuild(), deploymentType)
 						echo ${lastSuccessFullDeployment}
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
