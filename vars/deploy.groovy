@@ -28,7 +28,7 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 			deploymentDesc.add(desc)
 		}
 	}
-	def lastSuccessfullDeployDesc = deployDesc.first()
+	def lastSuccessfullDeployDesc = deploymentDesc.first()
 	return lastSuccessfullDeployDesc.substring(lastSuccessfullDeployDesc.lastIndexOf(deploymentType + " ") + 2)
 }
 
