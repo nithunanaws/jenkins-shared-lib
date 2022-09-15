@@ -24,10 +24,9 @@ def getLastSuccessBuildVersion(build, deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateLastSuccessfullBuilds(build, successBuilds)
-	for(eachBuild in successBuilds) {
-		def buildDesc = eachBuild.getDescription()
-		if(buildDesc.contains(deploymentType)) {
-			successBuildsDesc.add(eachBuild)
+	for(eachBuild in successBuilds) {		
+		if(eachBuild.getDescription().contains(deploymentType)) {
+			successBuildsDesc.add(eachBuild.getDescription())
 		}
 	}
 	def lastSuccessBuildDesc = successBuildsDesc.first()
