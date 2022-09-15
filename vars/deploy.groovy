@@ -8,8 +8,8 @@ def getDeploymentEnvironments(deploymentType) {
 
 def deployApp(deploymentType, pipelineParams) {	
     def envs = getDeploymentEnvironments(deploymentType)
-    def deploymentEnvs = envs.split(',')
-    for(String deployEnv: deploymentEnvs) {
+    def deployEnvs = envs.split(',')
+    for(deployEnv in deployEnvs) {
         doDeploy(deployEnv, deploymentType, pipelineParams)        
     }
 }
@@ -24,9 +24,9 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 	def passedBuildsDesc = []
 	def deploymentDesc = []
 	populateLastSuccessfullBuilds(build, passedBuildsDesc)
-	for(String desc: passedBuildsDesc) {
-		if(desc.contains(deploymentType)) {
-			deploymentDesc.add(desc)
+	for(buildDesc in passedBuildsDesc) {
+		if(buildDesc.contains(deploymentType)) {
+			deploymentDesc.add(buildDesc)
 		}
 	}
 	def lastSuccessfullDeployDesc = deploymentDesc.first()
@@ -36,16 +36,16 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
 	def allBuilds = []
 	populateAllBuilds(build, allBuilds)
-	for(int i=0; i < allBuilds.size()-1; i++) {
-		if(allBuilds[i] != null && allBuilds[i].getResult() != 'FAILURE') {
-			passedBuildsDesc.add(allBuilds[i].getDescription())
+	for(eachBuild in allBuilds) {
+		if(eachBuild != null && eachBuild.getResult() != 'FAILURE') {
+			passedBuildsDesc.add(eachBuild.getDescription())
 		}
-	}
+	}	
 }
 
-def populateAllBuilds(build, allBuilds) {
-	allBuilds.add(build)
+def populateAllBuilds(build, allBuilds) {	
 	if(build != null) {
+		allBuilds.add(build)
 		populateAllBuilds(build.getPreviousBuild(), allBuilds)
 	}	
 }
