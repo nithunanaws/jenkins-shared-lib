@@ -26,11 +26,19 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 	return passedBuildsDesc;	
 }
 
-def populateLastSuccessfullBuilds(build, passedBuildsDesc) {	
-	if (build != null && build.getResult() != 'FAILURE') {	
-		passedBuildsDesc.add(build.getDescription())
-		populateLastSuccessfullBuilds(build.getPreviousBuild())		
-	}	
+def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
+	def allBuilds = []
+	populateAllBuilds(build, allBuilds)
+	for(int i=0; i < allBuilds.size()-1; i++) {
+		if(allBuilds[i] != null && allBuilds[i].getResult() != 'FAILURE') {
+			passedBuildsDesc.add(allBuilds[i].getDescription())
+		}
+	}
+}
+
+def populateAllBuilds(build, allBuilds) {
+	allBuilds.add(build.getDescription())
+	populateAllBuilds(build.getPreviousBuild())
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
