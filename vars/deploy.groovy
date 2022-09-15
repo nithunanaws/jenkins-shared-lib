@@ -35,6 +35,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
                     if (buildRunResult != 'SUCCESS') {
                         error("Build failed with result: ${buildRunResult}")
                     }
+					env.VERSION = buildRun.buildVariables.VERSION
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 			}
