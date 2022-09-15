@@ -6,7 +6,7 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams) {	
+def deployApp(deploymentType, pipelineParams, lastSuccessFullDeployment) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
@@ -20,11 +20,11 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams) {
+def doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment) {
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun
+    def regressionRun	
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
