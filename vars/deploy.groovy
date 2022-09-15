@@ -21,11 +21,20 @@ def markStageSkipped(stageName, isStageDisabled) {
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
+	def buildRun
+    def deployRun
+    def acceptanceRun
+    def regressionRun
+
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
 				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
-					echo "${deploymentType}-Build Stage"
+					buildRun = build(job: "test-build")
+					def buildRunResult = buildRun.getResult()
+                    if (buildRunResult != 'SUCCESS') {
+                        error("Build failed with result: ${buildRunResult}")
+                    }
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 			}
@@ -34,7 +43,11 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     stage("${deployEnv}-Deploy") {        
         script {
 			if (pipelineParams.deployDisabled == null || pipelineParams.deployDisabled == false) {
-				echo "${deployEnv}-Deploy Stage"
+				deployRun = build(job: "test-deploy")
+				def deployRunResult = deployRun.getResult()
+                if (deployRunResult != 'SUCCESS') {
+                    error("Deployment failed with result: ${deployRunResult}")
+                }
 			}
 			markStageSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 		}
@@ -43,8 +56,11 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Acceptance") {            
             script {
 				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
-					echo "${deployEnv}-Acceptance Stage"
-					error("Acceptance tests failed with result")
+					acceptanceRun = build(job: "test-acceptance")	
+					def acceptanceRunResult = acceptanceRun.getResult()
+                    if (acceptanceRunResult != 'SUCCESS') {
+                        error("Acceptance tests failed with result: ${acceptanceRunResult}")
+                    }
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
@@ -54,8 +70,11 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Regression") {            
             script {
 				if (pipelineParams.regressionDisabled == null || pipelineParams.regressionDisabled == false) {
-					echo "${deployEnv}-Regression Stage"
-					error("Regression tests failed with result")
+					regressionRun = build(job: "test-regression")
+					def regressionRunResult = regressionRun.getResult()
+                    if (regressionRunResult != 'SUCCESS') {
+                        error("Regression tests failed with result: ${regressionRunResult}")
+                    }
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)	
 			}
