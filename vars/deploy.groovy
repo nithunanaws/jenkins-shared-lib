@@ -21,7 +21,8 @@ def markStageSkipped(stageName, isStageDisabled) {
 }
 
 def getLastSuccessfullDeployment(build, deploymentType) {
-	def passedBuildsDesc = []	
+	def passedBuildsDesc = []
+	def deploymentDesc = []
 	populateLastSuccessfullBuilds(build, passedBuildsDesc)
 	for(String desc: passedBuildsDesc) {
 		if(desc.contains(deploymentType)) {
