@@ -6,11 +6,11 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams, lastSuccessFullDeployment) {	
+def deployApp(deploymentType, pipelineParams) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment)        
+        doDeploy(deployEnv, deploymentType, pipelineParams)        
     }
 }
 
@@ -21,16 +21,9 @@ def markStageSkipped(stageName, isStageDisabled) {
 }
 
 def getLastSuccessfullDeployment(build, deploymentType) {
-	def passedBuildsDesc = []
-	def deploymentDesc = []
+	def passedBuildsDesc = []	
 	populateLastSuccessfullBuilds(build, passedBuildsDesc)
-	for(String desc: passedBuildsDesc) {
-		if(desc.contains(deploymentType)) {
-			deploymentDesc.add(desc)
-		}
-	}
-	def lastSuccessfullDeployDesc = deploymentDesc.first()
-	return lastSuccessfullDeployDesc.substring(lastSuccessfullDeployDesc.lastIndexOf(deploymentType + " ") + 2)
+	return passedBuildsDesc;	
 }
 
 def populateLastSuccessfullBuilds(build, passedBuildsDesc) {		
@@ -40,7 +33,7 @@ def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
 	}	
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment) {
+def doDeploy(deployEnv, deploymentType, pipelineParams) {
 	def buildRun
     def deployRun
     def acceptanceRun
