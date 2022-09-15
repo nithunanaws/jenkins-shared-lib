@@ -20,26 +20,26 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
-def getLastSuccessfullDeployment(build, deploymentType) {
-	def passedBuildsDesc = []
-	def deploymentDesc = []
-	populateLastSuccessfullBuilds(build, passedBuildsDesc)
-	for(buildDesc in passedBuildsDesc) {
-		if(buildDesc.contains(deploymentType)) {
-			deploymentDesc.add(buildDesc)
+def getLastSuccessBuildVersion(build, deploymentType) {
+	def successBuilds = []
+	def successBuildsDesc = []
+	populateLastSuccessfullBuilds(build, successBuilds)
+	for(eachBuild in successBuilds) {
+		if(eachBuild.getDescription().contains(deploymentType)) {
+			successBuildsDesc.add(eachBuild)
 		}
 	}
-	def lastSuccessfullDeployDesc = deploymentDesc.first()
-	def descWords = lastSuccessfullDeployDesc.split(" ")
+	def lastSuccessBuildDesc = successBuildsDesc.first()
+	def descWords = lastSuccessBuildDesc.split(" ")
 	return descWords[1]
 }
 
-def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
+def populateLastSuccessfullBuilds(build, successBuilds) {
 	def allBuilds = []
 	populateAllBuilds(build, allBuilds)
 	for(eachBuild in allBuilds) {
 		if(eachBuild != null && eachBuild.getResult() != 'FAILURE') {
-			passedBuildsDesc.add(eachBuild.getDescription())
+			successBuilds.add(eachBuild)
 		}
 	}	
 }

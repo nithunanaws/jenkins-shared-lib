@@ -23,8 +23,8 @@ def call(body) {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						def lastSuccessFullDeployment = deploy.getLastSuccessfullDeployment(currentBuild.getPreviousBuild(), deploymentType)
-						echo "${lastSuccessFullDeployment}"
+						def lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+						echo "${lastSuccessBuildVersion}"
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
