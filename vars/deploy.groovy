@@ -41,11 +41,11 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Acceptance") {            
             script {
 				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
-					echo "${deployEnv}-Acceptance Stage"
+					echo "${env.STAGE_NAME} Stage"
 					error("Acceptance tests failed with result")
 				}
 				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {					
-					Utils.markStageSkippedForConditional(env.STAGE_NAME)
+					Utils.markStageSkippedForConditional("${deployEnv}-Acceptance")
 				}
 			}
         }
