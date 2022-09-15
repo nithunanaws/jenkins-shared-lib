@@ -25,7 +25,8 @@ def getLastSuccessBuildVersion(build, deploymentType) {
 	def successBuildsDesc = []
 	populateLastSuccessfullBuilds(build, successBuilds)
 	for(eachBuild in successBuilds) {
-		if(eachBuild.getDescription().contains(deploymentType)) {
+		def buildDesc = eachBuild.getDescription()
+		if(buildDesc.contains(deploymentType)) {
 			successBuildsDesc.add(eachBuild)
 		}
 	}
