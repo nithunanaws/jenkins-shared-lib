@@ -37,7 +37,7 @@ def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
 }
 
 def populateAllBuilds(build, allBuilds) {
-	allBuilds.add(build.getDescription())
+	allBuilds.add(build)
 	populateAllBuilds(build.getPreviousBuild(), allBuilds)
 }
 
