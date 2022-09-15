@@ -38,6 +38,7 @@ def getLastSuccessfullBuilds(build) {
 		getLastSuccessfullBuilds(build.getPreviousBuild())		
 		passedBuilds.add(build.getDescription())
 	}
+	return passedBuilds
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment) {
