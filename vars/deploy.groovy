@@ -30,7 +30,8 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 		}
 	}
 	def lastSuccessfullDeployDesc = deploymentDesc.first()
-	return lastSuccessfullDeployDesc.substring(lastSuccessfullDeployDesc.lastIndexOf(deploymentType + " "))	
+	def descWords = lastSuccessfullDeployDesc.split(" ")
+	return descWords[2]
 }
 
 def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
