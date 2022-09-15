@@ -23,7 +23,7 @@ def markStageSkipped(stageName, isStageDisabled) {
 def getLastSuccessBuildVersion(build, deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
-	populateLastSuccessfullBuilds(build, successBuilds)
+	populateSuccessBuilds(build, successBuilds)
 	for(eachBuild in successBuilds) {		
 		if(eachBuild.getDescription().contains(deploymentType)) {
 			successBuildsDesc.add(eachBuild.getDescription())
@@ -34,7 +34,7 @@ def getLastSuccessBuildVersion(build, deploymentType) {
 	return descWords[1]
 }
 
-def populateLastSuccessfullBuilds(build, successBuilds) {
+def populateSuccessBuilds(build, successBuilds) {
 	def allBuilds = []
 	populateAllBuilds(build, allBuilds)
 	for(eachBuild in allBuilds) {
