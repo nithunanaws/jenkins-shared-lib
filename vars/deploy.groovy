@@ -45,7 +45,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					error("Acceptance tests failed with result")
 				}
 				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {					
-					Utils.markStageSkippedForConditional("${deployEnv}-Acceptance")
+					Utils.markStageSkippedForConditional(env.STAGE_NAME)
 				}
 			}
         }
