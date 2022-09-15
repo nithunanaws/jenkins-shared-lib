@@ -14,6 +14,12 @@ def deployApp(deploymentType, pipelineParams) {
     }
 }
 
+def markStageSkipped(stageName, isStageDisabled) {
+	if(isStageDisabled != null && isStageDisabled == true) {
+		Utils.markStageSkippedForConditional(stageName)
+	}
+}
+
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
@@ -42,11 +48,9 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
             script {
 				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
 					echo "${deployEnv}-Acceptance Stage"
-					error("${env.STAGE_NAME}-Acceptance tests failed with result")
+					error("Acceptance tests failed with result")
 				}
-				if(pipelineParams.acceptanceDisabled != null && pipelineParams.acceptanceDisabled == true) {					
-					Utils.markStageSkippedForConditional("${deployEnv}-Acceptance")
-				}
+				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
     }
