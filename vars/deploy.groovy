@@ -38,7 +38,9 @@ def populateLastSuccessfullBuilds(build, passedBuildsDesc) {
 
 def populateAllBuilds(build, allBuilds) {
 	allBuilds.add(build)
-	populateAllBuilds(build.getPreviousBuild(), allBuilds)
+	if(build != null) {
+		populateAllBuilds(build.getPreviousBuild(), allBuilds)
+	}	
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
