@@ -10,13 +10,33 @@ def deployApp(deploymentType, pipelineParams, lastSuccessFullDeployment) {
     def envs = getDeploymentEnvironments(deploymentType)
     def deploymentEnvs = envs.split(',')
     for(String deployEnv: deploymentEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment)        
     }
 }
 
 def markStageSkipped(stageName, isStageDisabled) {
 	if(isStageDisabled != null && isStageDisabled == true) {
 		Utils.markStageSkippedForConditional(stageName)
+	}
+}
+
+def getLastSuccessfullDeployment(build, deploymentType) {
+	def deploymentDesc = []
+	def buildDescription = getLastSuccessfullBuilds(build)
+	for(String desc: buildDescription) {
+		if(desc.contains(deploymentType)) {
+			deploymentDesc.add(desc)
+		}
+	}
+	def lastSuccessfullDeployDesc = deployDesc.first()
+	return lastSuccessfullDeployDesc.substring(lastSuccessfullDeployDesc.lastIndexOf(deploymentType + " ") + 2)
+}
+
+def getLastSuccessfullBuilds(build) {
+	def passedBuilds = []
+	if (build != null && build.getResult() != 'FAILURE') {	
+		getLastSuccessfullBuilds(build.getPreviousBuild())		
+		passedBuilds.add(build.getDescription())
 	}
 }
 
