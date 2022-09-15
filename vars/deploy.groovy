@@ -26,10 +26,10 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 	return passedBuildsDesc;	
 }
 
-def populateLastSuccessfullBuilds(build, passedBuildsDesc) {		
+def populateLastSuccessfullBuilds(build, passedBuildsDesc) {	
 	if (build != null && build.getResult() != 'FAILURE') {	
-		getLastSuccessfullBuilds(build.getPreviousBuild())
 		passedBuildsDesc.add(build.getDescription())
+		getLastSuccessfullBuilds(build.getPreviousBuild())		
 	}	
 }
 
