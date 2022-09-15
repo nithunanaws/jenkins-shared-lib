@@ -27,9 +27,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
 					echo "${deploymentType}-Build Stage"
 				}
-				if(pipelineParams.buildDisabled != null && pipelineParams.buildDisabled == true) {					
-					Utils.markStageSkippedForConditional("${deployEnv}-Build")
-				}
+				markStageSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 			}
         }
     }    
@@ -38,9 +36,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 			if (pipelineParams.deployDisabled == null || pipelineParams.deployDisabled == false) {
 				echo "${deployEnv}-Deploy Stage"
 			}
-			if(pipelineParams.deployDisabled != null && pipelineParams.deployDisabled == true) {					
-				Utils.markStageSkippedForConditional("${deployEnv}-Deploy")
-			}
+			markStageSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 		}
     }
     if(deployEnv == "INT") {
@@ -61,9 +57,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					echo "${deployEnv}-Regression Stage"
 					error("Regression tests failed with result")
 				}
-				if(pipelineParams.regressionDisabled != null && pipelineParams.regressionDisabled == true) {					
-					Utils.markStageSkippedForConditional("${deployEnv}-Regression")
-				}
+				markStageSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)	
 			}
         }
     }    
