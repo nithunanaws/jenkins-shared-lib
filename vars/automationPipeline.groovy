@@ -26,6 +26,7 @@ def call(body) {
                 steps {
                     script {	
 						lastSuccessFullDeployment = deploy.getLastSuccessfullDeployment(currentBuild.getPreviousBuild(), deploymentType)
+						echo ${lastSuccessFullDeployment}
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
@@ -34,7 +35,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = "${env.deploymentType} ${env.VERSION} ${lastSuccessFullDeployment}"
+                    currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
             }            
         }
