@@ -20,10 +20,11 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
+def passedBuilds = []
 def getLastSuccessfullDeployment(build, deploymentType) {
 	def deploymentDesc = []
-	def buildDescription = getLastSuccessfullBuilds(build)
-	for(String desc: buildDescription) {
+	populateLastSuccessfullBuilds(build)
+	for(String desc: passedBuilds) {
 		if(desc.contains(deploymentType)) {
 			deploymentDesc.add(desc)
 		}
@@ -32,13 +33,11 @@ def getLastSuccessfullDeployment(build, deploymentType) {
 	return lastSuccessfullDeployDesc.substring(lastSuccessfullDeployDesc.lastIndexOf(deploymentType + " ") + 2)
 }
 
-def getLastSuccessfullBuilds(build) {
-	def passedBuilds = []
+def populateLastSuccessfullBuilds(build) {		
 	if (build != null && build.getResult() != 'FAILURE') {	
-		getLastSuccessfullBuilds(build.getPreviousBuild())		
+		getLastSuccessfullBuilds(build.getPreviousBuild())
 		passedBuilds.add(build.getDescription())
-	}
-	return passedBuilds
+	}	
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams, lastSuccessFullDeployment) {
