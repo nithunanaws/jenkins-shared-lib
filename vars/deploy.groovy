@@ -87,14 +87,14 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Acceptance tests failed') {
-					if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
-						acceptanceRun = build(job: "test-acceptance")						
-						markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
-					}
+				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
+					acceptanceRun = build(job: "test-acceptance")	
+					def acceptanceRunResult = acceptanceRun.getResult()
+                    if (acceptanceRunResult != 'SUCCESS') {
+                        error("Acceptance tests failed with result: ${acceptanceRunResult}")
+                    }
 				}
-				
-								
+				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
     }
