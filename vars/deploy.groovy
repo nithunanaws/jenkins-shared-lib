@@ -10,7 +10,7 @@ def deployApp(deploymentType, pipelineParams) {
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, failedStage)        
+        doDeploy(deployEnv, deploymentType, pipelineParams)        
     }
 }
 
