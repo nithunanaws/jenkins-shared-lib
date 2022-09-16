@@ -36,14 +36,7 @@ def call(body) {
                 script {
                     currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
-            }
-			failure {
-                script {
-					echo env.deploymentType
-					echo lastSuccessBuildVersion
-					echo env.FAILED_STAGE                    
-                }
-            }
+            }			
         }
     }
 }
