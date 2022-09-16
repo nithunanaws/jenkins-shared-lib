@@ -20,7 +20,7 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
-def getLastSuccessBuildVersion(build, deploymentType, failedStage) {
+def getLastSuccessBuildVersion(build, deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
@@ -51,7 +51,7 @@ def populateAllBuilds(build, allBuilds) {
 	}	
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams) {
+def doDeploy(deployEnv, deploymentType, pipelineParams, failedStage) {
 	def buildRun
     def deployRun
     def acceptanceRun
