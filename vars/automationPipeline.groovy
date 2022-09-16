@@ -10,9 +10,7 @@ def call(body) {
     def pipelineParams= [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
-    body()	
-	
-	def lastSuccessBuildVersion
+    body()
 
     pipeline {
         agent any
@@ -25,7 +23,7 @@ def call(body) {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
+						def lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
