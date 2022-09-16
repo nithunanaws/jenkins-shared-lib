@@ -16,14 +16,15 @@ def call(body) {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')		
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+			lastSuccessBuildVersion	= ''
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						def lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
+						lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
@@ -34,7 +35,13 @@ def call(body) {
                 script {
                     currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
-            }			
+            }	
+			failure {
+                script {
+                    echo env.lastSuccessBuildVersion
+					echo env.FAILED_STAGE
+                }
+            }
         }
     }
 }
