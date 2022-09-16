@@ -11,24 +11,23 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
     body()
+	
+	def FAILED_STAGE
+	def LAST_SUCCESS_BUILD_VERSION
 
     pipeline {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			FAILED_STAGE = ''
-			LAST_SUCCESS_BUILD_VERSION = ''
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')			
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						def lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
-						echo "${lastSuccessBuildVersion}"
-						env.LAST_SUCCESS_BUILD_VERSION = lastSuccessBuildVersion
-                        deploy.deployApp(env.deploymentType, pipelineParams, env.FAILED_STAGE)
+						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
+                        deploy.deployApp(env.deploymentType, pipelineParams, FAILED_STAGE)
                     }
                 }
             }                        
@@ -41,8 +40,8 @@ def call(body) {
             }	
 			failure {
                 script {
-                    echo "${env.LAST_SUCCESS_BUILD_VERSION}"
-					echo "${env.FAILED_STAGE}"
+                    echo "Last Successfull Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
+					echo "Failed stage name: ${FAILED_STAGE}"
                 }
             }
         }
