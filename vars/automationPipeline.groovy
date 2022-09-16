@@ -17,16 +17,17 @@ def call(body) {
 
 		environment {            
             deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			faildStage = ''
-			lastSuccessBuildVersion = ''
+			FAILED_STAGE = ''
+			LAST_SUCCESS_BUILD_VERSION = ''
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						env.lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)					
-                        deploy.deployApp(env.deploymentType, pipelineParams, env.faildStage)
+						def lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+						env.LAST_SUCCESS_BUILD_VERSION = lastSuccessBuildVersion
+                        deploy.deployApp(env.deploymentType, pipelineParams, env.FAILED_STAGE)
                     }
                 }
             }                        
@@ -39,8 +40,8 @@ def call(body) {
             }	
 			failure {
                 script {
-                    echo "${env.lastSuccessBuildVersion}"
-					echo "${env.faildStage}"
+                    echo "${env.LAST_SUCCESS_BUILD_VERSION}"
+					echo "${env.FAILED_STAGE}"
                 }
             }
         }
