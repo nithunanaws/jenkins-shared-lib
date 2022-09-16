@@ -26,6 +26,7 @@ def call(body) {
                 steps {
                     script {	
 						def lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+						echo "${lastSuccessBuildVersion}"
 						env.LAST_SUCCESS_BUILD_VERSION = lastSuccessBuildVersion
                         deploy.deployApp(env.deploymentType, pipelineParams, env.FAILED_STAGE)
                     }
