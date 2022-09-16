@@ -16,15 +16,13 @@ def call(body) {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			GIT_COMMIT_REV=''
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')		
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
-                    script {
-						GIT_COMMIT_REV = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+                    script {	
 						def lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
@@ -34,7 +32,7 @@ def call(body) {
 		post {            
             success {
                 script {
-                    currentBuild.description = "${env.deploymentType} ${env.GIT_COMMIT_REV}"
+                    currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
             }            
         }
