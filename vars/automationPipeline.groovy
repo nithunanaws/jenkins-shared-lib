@@ -11,8 +11,7 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
     body()
-	
-	def FAILED_STAGE
+		
 	def LAST_SUCCESS_BUILD_VERSION
 
     pipeline {
@@ -27,7 +26,7 @@ def call(body) {
                 steps {
                     script {	
 						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
-                        deploy.deployApp(env.deploymentType, pipelineParams, FAILED_STAGE)
+                        deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
             }                        
@@ -41,7 +40,7 @@ def call(body) {
 			failure {
                 script {
                     echo "Last Successfull Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
-					echo "Failed stage name: ${FAILED_STAGE}"
+					echo "${currentBuild.result}"
                 }
             }
         }
