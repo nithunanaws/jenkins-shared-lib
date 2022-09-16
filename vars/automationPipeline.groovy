@@ -24,7 +24,7 @@ def call(body) {
             stage('Deployment Initiated') {
                 steps {
                     script {
-						GIT_COMMIT_REV = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+						GIT_COMMIT_REV = bat(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
 						def lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
