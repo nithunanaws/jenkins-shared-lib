@@ -27,7 +27,7 @@ def call(body) {
                 steps {
                     script {	
 						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
-                        deploy.deployApp(env.deploymentType, pipelineParams, FAILED_STAGE)
+                        FAILED_STAGE = deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
             }                        

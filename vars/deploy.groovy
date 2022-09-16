@@ -6,7 +6,7 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams, failedStage) {	
+def deployApp(deploymentType, pipelineParams) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
@@ -51,11 +51,12 @@ def populateAllBuilds(build, allBuilds) {
 	}	
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams, failedStage) {
+def doDeploy(deployEnv, deploymentType, pipelineParams) {
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun	
+    def regressionRun
+	def failedStage
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
@@ -112,5 +113,6 @@ def doDeploy(deployEnv, deploymentType, pipelineParams, failedStage) {
 				markStageSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)	
 			}
         }
-    }    
+    } 
+	return failedStage
 }
