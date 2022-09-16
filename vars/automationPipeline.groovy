@@ -38,8 +38,8 @@ def call(body) {
             }	
 			failure {
                 script {
-                    echo env.lastSuccessBuildVersion
-					echo env.FAILED_STAGE
+                    echo "${env.lastSuccessBuildVersion}"
+					echo "${env.FAILED_STAGE}"
                 }
             }
         }
