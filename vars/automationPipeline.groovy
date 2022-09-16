@@ -16,15 +16,15 @@ def call(body) {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')			
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+			VERSION = "$BUILD_TIMESTAMP_${GIT_COMMIT}"
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						def lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
-						echo "${lastSuccessBuildVersion}"
+						def lastSuccessBuildVersion= deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)						
                         deploy.deployApp(env.deploymentType, pipelineParams)
                     }
                 }
