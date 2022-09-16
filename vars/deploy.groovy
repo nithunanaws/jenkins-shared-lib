@@ -6,11 +6,11 @@ def getDeploymentEnvironments(deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams) {	
+def deployApp(deploymentType, pipelineParams, failedStage) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, failedStage)        
     }
 }
 
@@ -20,7 +20,7 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
-def getLastSuccessBuildVersion(build, deploymentType) {
+def getLastSuccessBuildVersion(build, deploymentType, failedStage) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
@@ -91,7 +91,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					acceptanceRun = build(job: "test-acceptance")	
 					def acceptanceRunResult = acceptanceRun.getResult()
                     if (acceptanceRunResult != 'SUCCESS') {
-						env.FAILED_STAGE = env.STAGE_NAME
+						faildStage = env.STAGE_NAME
                         error("Acceptance tests failed with result: ${acceptanceRunResult}")
                     }
 				}
