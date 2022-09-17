@@ -54,7 +54,7 @@ def populateAllBuilds(build, allBuilds) {
 }
 
 def getFailedStage() {
-return failedStage
+	return failedStage
 }
 
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
