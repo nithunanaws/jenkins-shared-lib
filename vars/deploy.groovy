@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
+def failedStage
+
 def getDeploymentEnvironments(deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
     map[deploymentType] ?: 'INT,QAF'
@@ -51,6 +53,10 @@ def populateAllBuilds(build, allBuilds) {
 	}	
 }
 
+def getFailedStage() {
+return failedStage
+}
+
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
 	def buildRun
     def deployRun
@@ -91,7 +97,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					acceptanceRun = build(job: "test-acceptance")	
 					def acceptanceRunResult = acceptanceRun.getResult()
                     if (acceptanceRunResult != 'SUCCESS') {
-						env.FAILED_STAGE = env.STAGE_NAME
+						failedStage = env.STAGE_NAME
                         error("Acceptance tests failed with result: ${acceptanceRunResult}")
                     }
 				}
