@@ -1,9 +1,5 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
-import groovy.transform.Field
-
-@Field
-String failedStage
 
 def getDeploymentEnvironments(deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
@@ -55,10 +51,6 @@ def populateAllBuilds(build, allBuilds) {
 	}	
 }
 
-def getFailedStageName() {
-	return failedStage
-}
-
 def doDeploy(deployEnv, deploymentType, pipelineParams) {
 	def buildRun
     def deployRun
@@ -99,7 +91,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					acceptanceRun = build(job: "test-acceptance")	
 					def acceptanceRunResult = acceptanceRun.getResult()
                     if (acceptanceRunResult != 'SUCCESS') {						
-                        error("${env.STAGE_NAME} - Acceptance tests failed with result: ${acceptanceRunResult}")
+                        error("Acceptance tests failed with result: ${acceptanceRunResult}")
                     }
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
