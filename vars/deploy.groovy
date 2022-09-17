@@ -99,7 +99,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
 					acceptanceRun = build(job: "test-acceptance")	
 					def acceptanceRunResult = acceptanceRun.getResult()
                     if (acceptanceRunResult != 'SUCCESS') {
-						failedStage = env.STAGE_NAME
+						echo "Failed stage name: ${env.STAGE}"
                         error("Acceptance tests failed with result: ${acceptanceRunResult}")
                     }
 				}
