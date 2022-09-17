@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import groovy.transform.Field
 
-failedStage
+@Field
+String failedStage
 
 def getDeploymentEnvironments(deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
