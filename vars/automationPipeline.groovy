@@ -40,8 +40,8 @@ def call(body) {
 			failure {
                 script {
                     echo "Last Successfull Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
-					def failedStage = deploy.getFailedStage()
-					echo "${failedStage}"
+					def failedStageName = deploy.getFailedStageName()
+					echo "${failedStageName}"
                 }
             }
         }

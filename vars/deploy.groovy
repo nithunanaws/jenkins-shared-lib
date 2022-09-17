@@ -53,7 +53,7 @@ def populateAllBuilds(build, allBuilds) {
 	}	
 }
 
-def getFailedStage() {
+def getFailedStageName() {
 	return failedStage
 }
 
