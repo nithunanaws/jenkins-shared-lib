@@ -1,32 +1,34 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-def getDeploymentEnvironments(deploymentType) {
+def getDeploymentEnvironments(def deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(deploymentType, pipelineParams) {	
+def deployApp(def deploymentType, def pipelineParams, def JobName) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)        
     }
 }
 
-def markStageSkipped(stageName, isStageDisabled) {
+def markStageAsSkipped(def stageName, def isStageDisabled) {
 	if(isStageDisabled != null && isStageDisabled == true) {
 		Utils.markStageSkippedForConditional(stageName)
 	}
 }
 
-def runStageJob(jobName, isStageDisabled) {
+def runJob(def jobName, def isStageDisabled) {
+	def result
 	if(isStageDisabled == null || isStageDisabled == false) {
-		build(job: jobName)
-	}
+		result = build(job: jobName)
+	}	
+	return result
 }
 
-def getLastSuccessBuildVersion(build, deploymentType) {
+def getLastSuccessBuildVersion(def build, def deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
@@ -40,7 +42,7 @@ def getLastSuccessBuildVersion(build, deploymentType) {
 	return descWords[1]
 }
 
-def populateSuccessBuilds(build, successBuilds) {
+def populateSuccessBuilds(def build, def successBuilds) {
 	def allBuilds = []
 	populateAllBuilds(build, allBuilds)
 	for(eachBuild in allBuilds) {
@@ -50,14 +52,14 @@ def populateSuccessBuilds(build, successBuilds) {
 	}	
 }
 
-def populateAllBuilds(build, allBuilds) {	
+def populateAllBuilds(def build, def allBuilds) {	
 	if(build != null) {
 		allBuilds.add(build)
 		populateAllBuilds(build.getPreviousBuild(), allBuilds)
 	}	
 }
 
-def doDeploy(deployEnv, deploymentType, pipelineParams) {
+def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
     def deployRun
     def acceptanceRun
@@ -66,46 +68,31 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
-				if (pipelineParams.buildDisabled == null || pipelineParams.buildDisabled == false) {
-					buildRun = build(job: "test-build")					
-                    if (buildRun.getResult() != 'SUCCESS') {
-                        error("Build failed")
-                    }
-					env.VERSION = buildRun.buildVariables.VERSION
-				}
-				markStageSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+				buildRun = runJob("${jobName}-build", pipelineParams.buildDisabled)
+				env.VERSION = buildRun.buildVariables.VERSION
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 			}
         }
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			if (pipelineParams.deployDisabled == null || pipelineParams.deployDisabled == false) {
-				deployRun = build(job: "test-deploy")				
-                if (deployRun.getResult() != 'SUCCESS') {
-                    error("Deployment failed")
-                }
-			}
-			markStageSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+			deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
+			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 		}
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				runStageJob("test-acceptance", pipelineParams.acceptanceDisabled)
-				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
+				acceptanceRun = runJob(jobName}-acceptance", pipelineParams.acceptanceDisabled)
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
     }
     if(deployEnv == "QAR") {
         stage("${deployEnv}-Regression") {            
             script {
-				if (pipelineParams.regressionDisabled == null || pipelineParams.regressionDisabled == false) {
-					regressionRun = build(job: "test-regression")					
-                    if (regressionRun.getResult() != 'SUCCESS') {
-                        error("Regression tests failed")
-                    }
-				}
-				markStageSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)	
+				regressionRun = runJob("${jobName}-regression", pipelineParams.regressionDisabled)	
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
 			}
         }
     }	

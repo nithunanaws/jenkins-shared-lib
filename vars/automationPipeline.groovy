@@ -18,7 +18,8 @@ def call(body) {
         agent any
 
 		environment {            
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')			
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+			JOB_NAME = 'test'
         }
 		
         stages {
