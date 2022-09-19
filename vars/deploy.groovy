@@ -84,7 +84,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     stage("${deployEnv}-Deploy") {        
         script {
 			if(env.IS_STAGE_FAILED == 'true') {
-				error("Failing ${env.STAGE_NAME} due to previous stage failure")
+				error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
 			}
 			try {
 				if(env.IS_STAGE_FAILED == 'false') {
@@ -102,18 +102,14 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Acceptance") {            
             script {
 				if(env.IS_STAGE_FAILED == 'true') {
-					error("Failing ${env.STAGE_NAME} due to previous stage failure")
+					error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
 				}
-				try {
-					if(env.IS_STAGE_FAILED == 'false') {
-						acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
-						markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
-					}
-				} catch(Exception e) {					
+				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
 					env.IS_STAGE_FAILED = 'true'	
 					env.STAGE_FAILED = env.STAGE_NAME
-					currentBuild.result = 'FAILURE'	
-				}				
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
+				}								
 			}
         }
     }
@@ -121,7 +117,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Regression") {            
             script {
 				if(env.IS_STAGE_FAILED == 'true') {
-					error("Failing ${env.STAGE_NAME} due to previous stage failure")
+					error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
 				}
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
