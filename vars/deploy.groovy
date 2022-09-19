@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
+isPreviousStageFailed = 'false'
+
 def getDeploymentEnvironments(def deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
     map[deploymentType] ?: 'INT,QAF'
@@ -8,10 +10,9 @@ def getDeploymentEnvironments(def deploymentType) {
 
 def deployApp(def deploymentType, def pipelineParams, def jobName) {	
     def envs = getDeploymentEnvironments(deploymentType)
-    def deployEnvs = envs.split(',')
-	def isPreviousStageFailed = 'false'
+    def deployEnvs = envs.split(',')	
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, jobName, isPreviousStageFailed)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)        
     }
 }
 
@@ -60,7 +61,7 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
-def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName, isPreviousStageFailed) {
+def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
     def deployRun
     def acceptanceRun
