@@ -85,6 +85,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
             script {
 				catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
+					echo "${acceptanceRun.result}"
 				}					
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
