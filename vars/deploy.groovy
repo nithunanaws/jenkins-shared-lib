@@ -100,15 +100,14 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
-            script {
-				if(env.IS_STAGE_FAILED == 'true') {
-					bat '''dir QWERTY || exit'''
-				}
+            script {				
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
 						acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 						markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
-					}									
+					} else {
+						error("Failing ${env.STAGE_NAME} due to previous stage failure")
+					}
 				} catch(Exception e) {					
 					env.IS_STAGE_FAILED = 'true'	
 					env.STAGE_FAILED = env.STAGE_NAME
