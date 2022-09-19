@@ -30,6 +30,13 @@ def call(body) {
                     }
                 }
             }                        
-        } 		
+        } 
+		post {            
+            success {
+                script {
+                    currentBuild.description = "${env.deploymentType} ${env.VERSION}"
+                }
+            }			
+        }
     }
 }
