@@ -67,7 +67,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun	
+    def regressionRun
+	def isPreviousStageFailed = false
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
@@ -80,15 +81,23 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
-			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+			if(!isPreviousStageFailed) {
+				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+			}			
 		}
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
+				try {
+					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
+				} catch(err) {
+					isPreviousStageFailed = true
+					currentBuild.result = 'FAILURE'
+				}
+								
 			}
         }
     }
