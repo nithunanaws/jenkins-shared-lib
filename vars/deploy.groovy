@@ -90,6 +90,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
 				} catch(Exception e) {
+					echo currentBuild.result
+					echo isPreviousStageFailed
 					isPreviousStageFailed = 'true'
 					currentBuild.result = 'FAILURE'
 				}
