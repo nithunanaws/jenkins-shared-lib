@@ -79,10 +79,6 @@ def populateAllBuilds(def build, def allBuilds) {
 }
 
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
-	def buildRun
-    def deployRun
-    def acceptanceRun
-    def regressionRun	
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
