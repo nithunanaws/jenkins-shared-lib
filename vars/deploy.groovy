@@ -86,7 +86,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)					
 				}		
-				echo "${acceptanceRun.result}"
+				echo "${acceptanceRun.getResult()}"
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
