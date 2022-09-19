@@ -61,6 +61,13 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
+def getPreviousStageFailedData() {
+	return isPreviousStageFailed
+}
+
+def setPreviousStageFailedData(def status) {
+	isPreviousStageFailed = status
+
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
     def deployRun
@@ -77,9 +84,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         }
     }    
     stage("${deployEnv}-Deploy") {        
-        script {
-			echo isPreviousStageFailed
-			if(isPreviousStageFailed == 'false') {
+        script {			
+			if(getPreviousStageFailedData() == 'false') {
 				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 			}			
@@ -91,10 +97,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 				try {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
-				} catch(Exception e) {
-					echo isPreviousStageFailed
-					isPreviousStageFailed = 'true'	
-					echo isPreviousStageFailed
+				} catch(Exception e) {					
+					setPreviousStageFailedData('true')					
 					currentBuild.result = 'FAILURE'
 				}				
 			}
