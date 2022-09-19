@@ -83,7 +83,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				catchError(buildResult: 'FAILURE', stageResult: FAILURE) {
+				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
 					currentBuild.result = 'FAILURE'
 				}				
