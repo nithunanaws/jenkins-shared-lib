@@ -75,7 +75,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         }
     }    
     stage("${deployEnv}-Deploy") {        
-        script {			
+        script {
+			echo "Status: ${env.PREVIOUS_STAGE_FAILED}"		
 			if(env.PREVIOUS_STAGE_FAILED == 'false') {
 				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
@@ -88,8 +89,10 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 				try {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
-				} catch(Exception e) {					
-					env.PREVIOUS_STAGE_FAILED = 'true'					
+				} catch(Exception e) {
+					echo "Status: ${env.PREVIOUS_STAGE_FAILED}"
+					env.PREVIOUS_STAGE_FAILED = 'true'
+					echo "Status: ${env.PREVIOUS_STAGE_FAILED}"
 					currentBuild.result = 'FAILURE'
 				}				
 			}
