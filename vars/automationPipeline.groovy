@@ -38,7 +38,7 @@ def call(body) {
                     currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
             }
-			ailure {
+			failure {
                 script {
                     echo "Last Successful Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
                 }
