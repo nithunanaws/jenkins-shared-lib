@@ -28,6 +28,26 @@ def runJob(def jobName, def isStageDisabled) {
 	return result
 }
 
+def runStage(def stageName, def jobName, def isStageDisabled) {
+	def jobResult
+	if(env.IS_STAGE_FAILED == 'true') {
+		error("Failing ${stageName} due to ${env.STAGE_FAILED} failure")
+	}
+	try {
+		if(env.IS_STAGE_FAILED == 'false') {
+			jobResult = runJob(jobName, isStageDisabled)
+			if(jobName.contains("build")) {
+				env.VERSION = jobResult.buildVariables.VERSION
+			}			
+		} 								
+	} catch(Exception e) {					
+		env.IS_STAGE_FAILED = 'true'
+		env.STAGE_FAILED = stageName
+		currentBuild.result = 'FAILURE'
+		sh 'exit 1'
+	}
+}
+
 def getLastSuccessBuildVersion(def build, def deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
@@ -68,67 +88,31 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
-				try {
-					buildRun = runJob("${jobName}-build", pipelineParams.buildDisabled)
-					env.VERSION = buildRun.buildVariables.VERSION					
-					markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
-					env.IS_STAGE_FAILED = 'false'
-				} catch(Exception e) {					
-					env.IS_STAGE_FAILED = 'true'
-					env.STAGE_FAILED = env.STAGE_NAME
-					currentBuild.result = 'FAILURE'
-				}				
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+				env.IS_STAGE_FAILED = 'false'
+				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled)				
 			}
         }
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			if(env.IS_STAGE_FAILED == 'true') {
-				error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
-			}
-			try {
-				if(env.IS_STAGE_FAILED == 'false') {
-					deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
-					markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
-				}				
-			} catch(Exception e) {					
-				env.IS_STAGE_FAILED = 'true'
-				env.STAGE_FAILED = env.STAGE_NAME
-				currentBuild.result = 'FAILURE'				
-			}						
+			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+			runStage(env.STAGE_NAME, "${jobName}-deploy", pipelineParams.deployDisabled)							
 		}
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				if(env.IS_STAGE_FAILED == 'true') {
-					error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
-				}
-				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
-					env.IS_STAGE_FAILED = 'true'	
-					env.STAGE_FAILED = env.STAGE_NAME
-					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
-				}								
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
+				runStage(env.STAGE_NAME, "${jobName}-acceptance", pipelineParams.acceptanceDisabled)											
 			}
         }
     }
     if(deployEnv == "QAR") {
         stage("${deployEnv}-Regression") {            
             script {
-				if(env.IS_STAGE_FAILED == 'true') {
-					error("Failing ${env.STAGE_NAME} due to ${env.STAGE_FAILED} failure")
-				}
-				try {
-					if(env.IS_STAGE_FAILED == 'false') {
-						regressionRun = runJob("${jobName}-regression", pipelineParams.regressionDisabled)	
-						markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
-					} 								
-				} catch(Exception e) {					
-					env.IS_STAGE_FAILED = 'true'
-					env.STAGE_FAILED = env.STAGE_NAME
-					currentBuild.result = 'FAILURE'
-				}				
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
+				runStage(env.STAGE_NAME, "${jobName}-regression", pipelineParams.regressionDisabled)							
 			}
         }
     }	
