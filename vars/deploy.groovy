@@ -20,6 +20,12 @@ def markStageSkipped(stageName, isStageDisabled) {
 	}
 }
 
+def runStageJob(jobName, isStageDisabled) {
+	if(isStageDisabled == null || isStageDisabled == false) {
+		build(job: jobName)
+	}
+}
+
 def getLastSuccessBuildVersion(build, deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
@@ -85,9 +91,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
-					acceptanceRun = build(job: "test-acceptance")                    
-				}
+				runStageJob("test-acceptance", pipelineParams.acceptanceDisabled)
 				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
