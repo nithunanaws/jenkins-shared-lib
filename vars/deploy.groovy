@@ -102,7 +102,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Acceptance") {            
             script {
 				if(env.IS_STAGE_FAILED == 'true') {
-					sh 'exit 1'
+					bat '''dir QWERTY || exit'''
 				}
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
