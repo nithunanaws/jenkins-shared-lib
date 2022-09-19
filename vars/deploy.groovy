@@ -83,12 +83,13 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }    
     stage("${deployEnv}-Deploy") {        
         script {
+			if(env.IS_STAGE_FAILED == 'true') {
+				sh 'exit 1'
+			}
 			try {
 				if(env.IS_STAGE_FAILED == 'false') {
 					deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
-				} else {
-					sh 'exit 1'
 				}				
 			} catch(Exception e) {					
 				env.IS_STAGE_FAILED = 'true'
@@ -99,13 +100,14 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
-            script {				
+            script {
+				if(env.IS_STAGE_FAILED == 'true') {
+					sh 'exit 1'
+				}
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
 						acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 						markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
-					} else {
-						sh 'exit 1'
 					}									
 				} catch(Exception e) {					
 					env.IS_STAGE_FAILED = 'true'	
@@ -118,13 +120,14 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "QAR") {
         stage("${deployEnv}-Regression") {            
             script {
+				if(env.IS_STAGE_FAILED == 'true') {
+					sh 'exit 1'
+				}
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
 						regressionRun = runJob("${jobName}-regression", pipelineParams.regressionDisabled)	
 						markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
-					} else {
-						sh 'exit 1'
-					}									
+					} 								
 				} catch(Exception e) {					
 					env.IS_STAGE_FAILED = 'true'
 					env.STAGE_FAILED = env.STAGE_NAME
