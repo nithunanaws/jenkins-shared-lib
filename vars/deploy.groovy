@@ -86,10 +86,7 @@ def doDeploy(deployEnv, deploymentType, pipelineParams) {
         stage("${deployEnv}-Acceptance") {            
             script {
 				if (pipelineParams.acceptanceDisabled == null || pipelineParams.acceptanceDisabled == false) {
-					acceptanceRun = build(job: "test-acceptance")						
-                    if (acceptanceRun.getResult() != 'SUCCESS') {						
-                        error("Acceptance tests failed")
-                    }
+					acceptanceRun = build(job: "test-acceptance")                    
 				}
 				markStageSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
