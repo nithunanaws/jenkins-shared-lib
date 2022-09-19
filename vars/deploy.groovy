@@ -70,6 +70,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
             script {
 				buildRun = runJob("${jobName}-build", pipelineParams.buildDisabled)
 				env.VERSION = buildRun.buildVariables.VERSION
+				env.PREVIOUS_STAGE_FAILED = 'false'
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 			}
         }
