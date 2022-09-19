@@ -6,11 +6,11 @@ def getDeploymentEnvironments(def deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(def deploymentType, def pipelineParams, def jobName) {	
+def deployApp(def deploymentType, def pipelineParams) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, 'test')        
     }
 }
 
