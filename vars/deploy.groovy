@@ -6,11 +6,11 @@ def getDeploymentEnvironments(def deploymentType) {
     map[deploymentType] ?: 'INT,QAF'
 }
 
-def deployApp(def deploymentType, def pipelineParams, def jobName, def isPreviousStageFailed) {	
+def deployApp(def deploymentType, def pipelineParams, def jobName) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, jobName, isPreviousStageFailed)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)        
     }
 }
 
@@ -59,11 +59,12 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
-def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName, def isPreviousStageFailed) {
+def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun	
+    def regressionRun
+	isPreviousStageFailed = 'false'
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
