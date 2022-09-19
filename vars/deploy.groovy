@@ -77,6 +77,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }    
     stage("${deployEnv}-Deploy") {        
         script {
+			echo isPreviousStageFailed
 			if(isPreviousStageFailed == 'false') {
 				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
@@ -93,6 +94,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 					echo currentBuild.result
 					echo isPreviousStageFailed
 					isPreviousStageFailed = 'true'
+					echo isPreviousStageFailed
 					currentBuild.result = 'FAILURE'
 				}
 								
