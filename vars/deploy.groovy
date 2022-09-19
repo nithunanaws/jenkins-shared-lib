@@ -84,6 +84,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Acceptance") {            
             script {
 				acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
+				echo "Acceptance Result: ${acceptanceRun}"
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
