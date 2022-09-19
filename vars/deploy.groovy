@@ -23,7 +23,7 @@ def markStageAsSkipped(def stageName, def isStageDisabled) {
 def runJob(def jobName, def isStageDisabled) {
 	def result
 	if(isStageDisabled == null || isStageDisabled == false) {
-		result = build(job: jobName)
+		result = build(job: jobName, propagate: true)
 	}	
 	return result
 }
@@ -83,10 +83,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
-					currentBuild.result = 'FAILURE'
-				}				
+				acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)	
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
