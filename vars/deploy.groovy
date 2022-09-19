@@ -9,8 +9,9 @@ def getDeploymentEnvironments(def deploymentType) {
 def deployApp(def deploymentType, def pipelineParams, def jobName) {	
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
+	def isPreviousStageFailed = 'false'
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)        
+        doDeploy(deployEnv, deploymentType, pipelineParams, jobName, isPreviousStageFailed)        
     }
 }
 
@@ -59,12 +60,11 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
-def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
+def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName, isPreviousStageFailed) {
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun
-	isPreviousStageFailed = 'false'
+    def regressionRun	
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
