@@ -86,20 +86,16 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
-            script {
-				isStageFailed = 'false'
+            script {				
 				try {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
 				} catch(Exception e) {
-					isStageFailed = 'true'					
-					currentBuild.result = 'FAILURE'
-				}
-				if(isStageFailed == 'true') {
 					echo "Status: ${env.PREVIOUS_STAGE_FAILED}"
 					env.PREVIOUS_STAGE_FAILED = 'true'
-					echo "Status: ${env.PREVIOUS_STAGE_FAILED}"
-				}
+					echo "Status: ${env.PREVIOUS_STAGE_FAILED}"				
+					currentBuild.result = 'FAILURE'
+				}				
 			}
         }
     }
