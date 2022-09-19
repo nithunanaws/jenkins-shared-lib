@@ -67,6 +67,7 @@ def getPreviousStageFailedData() {
 
 def setPreviousStageFailedData(def status) {
 	isPreviousStageFailed = status
+}
 
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
