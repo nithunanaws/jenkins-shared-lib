@@ -83,7 +83,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				acceptanceRun = runJob(${jobName}-acceptance", pipelineParams.acceptanceDisabled)
+				acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
