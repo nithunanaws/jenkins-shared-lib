@@ -20,6 +20,7 @@ def call(body) {
 		environment {            
             deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
 			JOB_NAME = 'test'
+			PREVIOUS_STAGE_FAILED = 'false'
         }
 		
         stages {
@@ -27,7 +28,7 @@ def call(body) {
                 steps {
                     script {	
 						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
-                        deploy.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
+                        deploy.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME, env.PREVIOUS_STAGE_FAILED)
                     }
                 }
             }                        

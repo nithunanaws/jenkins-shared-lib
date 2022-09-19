@@ -59,12 +59,11 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
-def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
+def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName, def isPreviousStageFailed) {
 	def buildRun
     def deployRun
     def acceptanceRun
-    def regressionRun
-	def isPreviousStageFailed
+    def regressionRun	
 
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
@@ -78,7 +77,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     stage("${deployEnv}-Deploy") {        
         script {
 			echo isPreviousStageFailed
-			if(isPreviousStageFailed!= null && isPreviousStageFailed == 'false') {
+			if(isPreviousStageFailed == 'false') {
 				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 			}			
@@ -86,18 +85,16 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
-            script {
-				isStageFailed = 'false'
+            script {				
 				try {
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
-				} catch(Exception e) {					
-					isStageFailed = 'true'
-					echo isStageFailed
+				} catch(Exception e) {
+					echo isPreviousStageFailed
+					isPreviousStageFailed = 'true'	
+					echo isPreviousStageFailed
 					currentBuild.result = 'FAILURE'
-				}
-				isPreviousStageFailed = isStageFailed
-				echo isPreviousStageFailed
+				}				
 			}
         }
     }
