@@ -83,9 +83,18 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', message: 'Acceptance tests failed') {
-					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
-				}							
+				acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)
+				def result = acceptanceRun.getResult()
+				def msg = "${jobName}-acceptance: " + result
+				if ('SUCCESS' == result) {
+					println(msg)
+				} else if ('UNSTABLE' == result) {
+					currentBuild.result = 'FAILURE'
+				} else {
+					catchError(buildResult: 'FAILURE', stageResult: result) {
+						error(msg)
+					}
+				}
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)				
 			}
         }
