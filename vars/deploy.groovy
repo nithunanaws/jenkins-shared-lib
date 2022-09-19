@@ -83,7 +83,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }    
     stage("${deployEnv}-Deploy") {        
         script {
-			if(env.IS_STAGE_FAILED == 'false') {
+			if(env.IS_STAGE_FAILED == 'true') {
 				error("Failing ${env.STAGE_NAME} due to previous stage failure")
 			}
 			try {
@@ -101,7 +101,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {            
             script {
-				if(env.IS_STAGE_FAILED == 'false') {
+				if(env.IS_STAGE_FAILED == 'true') {
 					error("Failing ${env.STAGE_NAME} due to previous stage failure")
 				}
 				try {
@@ -121,7 +121,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Regression") {            
             script {
 				if(env.IS_STAGE_FAILED == 'true') {
-					sh 'exit 1'
+					error("Failing ${env.STAGE_NAME} due to previous stage failure")
 				}
 				try {
 					if(env.IS_STAGE_FAILED == 'false') {
