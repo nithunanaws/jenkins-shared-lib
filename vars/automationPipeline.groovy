@@ -19,7 +19,8 @@ def call(body) {
 
 		environment {            
             deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			JOB_NAME = 'test'			
+			JOB_NAME = 'test'
+			PREVIOUS_STAGE_FAILED = 'false'
         }
 		
         stages {

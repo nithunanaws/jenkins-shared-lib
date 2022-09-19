@@ -1,8 +1,6 @@
 #!/usr/bin/env groovy
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-isPreviousStageFailed = 'false'
-
 def getDeploymentEnvironments(def deploymentType) {
     def map = [FUNCTIONAL:'INT,QAF',RELEASE:'INT,QAR,STG,PT,PROD']        
     map[deploymentType] ?: 'INT,QAF'
@@ -61,14 +59,6 @@ def populateAllBuilds(def build, def allBuilds) {
 	}	
 }
 
-def getPreviousStageFailedData() {
-	return isPreviousStageFailed
-}
-
-def setPreviousStageFailedData(def status) {
-	isPreviousStageFailed = status
-}
-
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
 	def buildRun
     def deployRun
@@ -86,7 +76,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
     }    
     stage("${deployEnv}-Deploy") {        
         script {			
-			if(getPreviousStageFailedData() == 'false') {
+			if(env.PREVIOUS_STAGE_FAILED == 'false') {
 				deployRun = runJob("${jobName}-deploy", pipelineParams.deployDisabled)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 			}			
@@ -99,7 +89,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 					acceptanceRun = runJob("${jobName}-acceptance", pipelineParams.acceptanceDisabled)						
 					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)					
 				} catch(Exception e) {					
-					setPreviousStageFailedData('true')					
+					env.PREVIOUS_STAGE_FAILED = 'true'					
 					currentBuild.result = 'FAILURE'
 				}				
 			}
