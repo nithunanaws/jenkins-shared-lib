@@ -100,7 +100,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 				env.IS_ANY_STAGE_FAILED = 'false'
 				def parameters = [
-                                    string(name: 'BRANCH', value: 'master')
+                                    string(name: 'BRANCH', value: 'develop')
                             ]
 				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled, parameters)
 			}
