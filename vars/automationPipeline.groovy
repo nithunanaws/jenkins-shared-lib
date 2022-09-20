@@ -17,22 +17,22 @@ def call(body) {
     pipeline {
         agent any
 
-		environment {            
+		environment {
             deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			JOB_NAME = 'test'			
+			JOB_NAME = 'test'
         }
 		
         stages {
             stage('Deployment Initiated') {
                 steps {
                     script {	
-						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
+						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
                         deploy.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                     }
                 }
-            }                        
+            }
         } 
-		post {            
+		post {
             success {
                 script {
                     currentBuild.description = "${env.deploymentType} ${env.VERSION}"
