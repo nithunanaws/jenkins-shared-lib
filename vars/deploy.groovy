@@ -31,7 +31,7 @@ def runJob(def jobName, def isStageDisabled) {
 def runStage(def stageName, def jobName, def isStageDisabled) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
-			error("Failing ${stageName} due to ${FAILED_STAGE_NAME} failure")
+			error("Force failing due to ${FAILED_STAGE_NAME} stage failure")
 		}
 		try {
 			if(env.IS_ANY_STAGE_FAILED == 'false') {
@@ -43,7 +43,7 @@ def runStage(def stageName, def jobName, def isStageDisabled) {
 		} catch(Exception e) {
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_STAGE_NAME = stageName
-			error("${jobName} Failed")
+			error("Failing due to ${jobName} Failed")
 		}
 	}
 }
@@ -52,7 +52,7 @@ def getLastSuccessBuildVersion(def build, def deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
-	for(eachBuild in successBuilds) {		
+	for(eachBuild in successBuilds) {
 		if(eachBuild.getDescription().contains(deploymentType)) {
 			successBuildsDesc.add(eachBuild.getDescription())
 		}
