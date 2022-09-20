@@ -25,7 +25,7 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 	return result
 }
 
-def runStage(def stageName, def jobName, def isStageDisabled, def parameters, def lastSuccessBuildVersion) {
+def runStage(def stageName, def jobName, def isStageDisabled, def parameters) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
 			error("Force failing due to ${FAILED_STAGE_NAME} stage failure")
