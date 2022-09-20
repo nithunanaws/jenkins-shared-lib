@@ -29,22 +29,23 @@ def runJob(def jobName, def isStageDisabled) {
 }
 
 def runStage(def stageName, def jobName, def isStageDisabled) {
-	def jobResult
-	if(env.IS_STAGE_FAILED == 'true') {
-		error("Failing ${stageName} due to ${env.STAGE_FAILED} failure")
-	}
-	try {
-		if(env.IS_STAGE_FAILED == 'false') {
-			jobResult = runJob(jobName, isStageDisabled)
-			if(jobName.contains("build")) {
-				env.VERSION = jobResult.buildVariables.VERSION
-			}			
-		} 								
-	} catch(Exception e) {					
-		env.IS_STAGE_FAILED = 'true'
-		env.STAGE_FAILED = stageName
-		currentBuild.result = 'FAILURE'		
-	}
+	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+		if(env.IS_STAGE_FAILED == 'true') {
+			sh 'exit 1'	
+		}
+		try {
+			if(env.IS_STAGE_FAILED == 'false') {
+				def jobResult = runJob(jobName, isStageDisabled)
+				if(jobName.contains("build")) {
+					env.VERSION = jobResult.buildVariables.VERSION
+				}			
+			} 								
+		} catch(Exception e) {					
+			env.IS_STAGE_FAILED = 'true'
+			env.STAGE_FAILED = stageName
+			sh 'exit 1'		
+		}
+	}	
 }
 
 def getLastSuccessBuildVersion(def build, def deploymentType) {
