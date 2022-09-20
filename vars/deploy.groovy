@@ -20,22 +20,27 @@ def markStageAsSkipped(def stageName, def isStageDisabled) {
 	}
 }
 
-def runJob(def jobName, def isStageDisabled) {
+def runJob(def jobName, def isStageDisabled, def parameters) {
 	def result
 	if(isStageDisabled == null || isStageDisabled == false) {
-		result = build(job: jobName)
+		if(parameters) {
+			result = build(job: jobName, parameters: parameters)
+		} else {
+			result = build(job: jobName)
+		}
+		
 	}
 	return result
 }
 
-def runStage(def stageName, def jobName, def isStageDisabled) {
+def runStage(def stageName, def jobName, def isStageDisabled, def parameters) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
 			error("Force failing due to ${FAILED_STAGE_NAME} stage failure")
 		}
 		try {
 			if(env.IS_ANY_STAGE_FAILED == 'false') {
-				def jobResult = runJob(jobName, isStageDisabled)
+				def jobResult = runJob(jobName, isStageDisabled, parameters)
 				if(jobName.contains("build")) {
 					env.VERSION = jobResult.buildVariables.VERSION
 				}
@@ -94,21 +99,26 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 				env.IS_ANY_STAGE_FAILED = 'false'
-				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled)
+				def parameters = [
+                                    string(name: 'BRANCH', value: 'master')
+                            ]
+				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled, parameters)
 			}
         }
     }    
     stage("${deployEnv}-Deploy") {
         script {
 			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
-			runStage(env.STAGE_NAME, "${jobName}-deploy", pipelineParams.deployDisabled)
+			def parameters = []	
+			runStage(env.STAGE_NAME, "${jobName}-deploy", pipelineParams.deployDisabled, parameters)
 		}
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
-				runStage(env.STAGE_NAME, "${jobName}-acceptance", pipelineParams.acceptanceDisabled)
+				def parameters = []
+				runStage(env.STAGE_NAME, "${jobName}-acceptance", pipelineParams.acceptanceDisabled, parameters)
 			}
         }
     }
@@ -116,7 +126,8 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deployEnv}-Regression") {
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
-				runStage(env.STAGE_NAME, "${jobName}-regression", pipelineParams.regressionDisabled)
+				def parameters = []
+				runStage(env.STAGE_NAME, "${jobName}-regression", pipelineParams.regressionDisabled, parameters)
 			}
         }
     }	

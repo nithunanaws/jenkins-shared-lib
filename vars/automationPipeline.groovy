@@ -12,7 +12,7 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 		
-	def LAST_SUCCESS_BUILD_VERSION
+	def lastSuccessBuildVersion
 
     pipeline {
         agent any
@@ -25,8 +25,8 @@ def call(body) {
         stages {
             stage('Deployment Initiated') {
                 steps {
-                    script {	
-						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+                    script {
+						lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
                         deploy.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                     }
                 }
@@ -40,7 +40,7 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "Last Successful Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
+                    echo "Last Successful Build Version: ${lastSuccessBuildVersion}"
                 }
             }
         }
