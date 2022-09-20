@@ -23,7 +23,7 @@ def call(body) {
         }
 		
         stages {
-            stage('Deployment Initiated') {
+            stage('Deployment Preparation') {
                 steps {
                     script {
 						lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
@@ -31,7 +31,7 @@ def call(body) {
                     }
                 }
             }
-            stage('Rollback Initiated') {
+            stage('Rollback Preparation') {
                 when {
                     expression {
                         return env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true'
@@ -42,8 +42,7 @@ def call(body) {
                         pipelineParams.buildDisabled = false
                         pipelineParams.acceptanceDisabled = false
                         pipelineParams.regressionDisabled = false
-                        env.IS_ANY_STAGE_FAILED = 'false'
-                        env.ROLL_BACK = 'true'
+                        env.IS_ANY_STAGE_FAILED = 'false'                        
                         env.VERSION = lastSuccessBuildVersion
                         automation.rollbackApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                         currentBuild.result = 'FAILURE'

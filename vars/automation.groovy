@@ -92,11 +92,12 @@ def deployApp(def deploymentType, def pipelineParams, def jobName) {
     }
 }
 
-def rollbackApp(def deploymentType, def pipelineParams, def jobName, def lastSuccessBuildVersion) {
+def rollbackApp(def deploymentType, def pipelineParams, def jobName) {
 	def envs = getDeploymentEnvironments(deploymentType)
 	def deployEnvs = envs.split(',')
 	def failedEnv = getFailedDeploymentEnv(deploymentType)	
 	if(failedEnv) {
+		env.ROLL_BACK = 'true'
 		def idx = deployEnvs.indexOf(failedEnv)
 		def rollbackEnvs = deployEnvs.take(idx)
 		for(rollbackEnv in rollbackEnvs) {
