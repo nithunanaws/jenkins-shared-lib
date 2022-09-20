@@ -57,15 +57,9 @@ def getLastSuccessBuildVersion(def build, def deploymentType) {
 			successBuildsDesc.add(eachBuild.getDescription())
 		}
 	}
-	def buildVersion
-	if(!successBuildsDesc?.empty) {
-		def lastSuccessBuildDesc = successBuildsDesc.first()
-		def descWords = lastSuccessBuildDesc.split(" ")
-		if(!descWords?.empty && descWords.size() == 2) {
-			buildVersion = descWords[1]
-		}		
-	}
-	return buildVersion
+	def lastSuccessBuildDesc = successBuildsDesc.first()
+	def descWords = lastSuccessBuildDesc.split(" ")
+	return descWords[1]
 }
 
 def populateSuccessBuilds(def build, def successBuilds) {
