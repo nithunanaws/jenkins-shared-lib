@@ -26,7 +26,7 @@ def call(body) {
             stage('Deployment Initiated') {
                 steps {
                     script {
-						lastSuccessBuildVersion = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+						lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
                         automation.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                     }
                 }
