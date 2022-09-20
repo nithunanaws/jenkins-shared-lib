@@ -25,7 +25,8 @@ def call(body) {
         stages {
             stage('Deployment Initiated') {
                 steps {
-                    script {																
+                    script {	
+						LAST_SUCCESS_BUILD_VERSION = deploy.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)												
                         deploy.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                     }
                 }
@@ -39,7 +40,7 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "Last Successful Build Version:"
+                    echo "Last Successful Build Version: ${LAST_SUCCESS_BUILD_VERSION}"
                 }
             }
         }
