@@ -31,7 +31,7 @@ def runJob(def jobName, def isStageDisabled) {
 def runStage(def stageName, def jobName, def isStageDisabled) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_STAGE_FAILED == 'true') {
-			Utils.markStageSkippedForConditional(stageName)			
+			error("Failing ${stageName} due to ${STAGE_FAILED} failure")
 		}
 		try {
 			if(env.IS_STAGE_FAILED == 'false') {
@@ -43,7 +43,7 @@ def runStage(def stageName, def jobName, def isStageDisabled) {
 		} catch(Exception e) {					
 			env.IS_STAGE_FAILED = 'true'
 			env.STAGE_FAILED = stageName
-			error("${stageName} Failed")		
+			error("${jobName} Failed")
 		}
 	}	
 }
