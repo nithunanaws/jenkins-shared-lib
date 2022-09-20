@@ -98,7 +98,7 @@ def rollbackApp(def deploymentType, def pipelineParams, def jobName) {
 	def failedEnv = getFailedDeploymentEnv(deploymentType)	
 	if(failedEnv) {
 		env.ROLL_BACK = 'true'
-		def idx = deployEnvs.indexOf(failedEnv)
+		def idx = deployEnvs.findIndexOf(failedEnv)
 		def rollbackEnvs = deployEnvs.take(idx)
 		for(rollbackEnv in rollbackEnvs) {
 			doDeploy(rollbackEnv, deploymentType, pipelineParams, jobName)
