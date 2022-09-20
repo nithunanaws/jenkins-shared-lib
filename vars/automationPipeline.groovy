@@ -43,13 +43,18 @@ def call(body) {
                         pipelineParams.acceptanceDisabled = false
                         pipelineParams.regressionDisabled = false
                         env.IS_ANY_STAGE_FAILED = 'false'
+                        env.ROLL_BACK = 'true'
                         env.VERSION = lastSuccessBuildVersion
                         automation.rollbackApp(env.deploymentType, pipelineParams, env.JOB_NAME)
+                        currentBuild.result = 'FAILURE'
                     }
                 }
             }
         } 
 		post {
+            always {
+                cleanWs()
+            }
             success {
                 script {
                     currentBuild.description = "${env.deploymentType} ${env.VERSION}"
@@ -57,7 +62,11 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "Last Successful Build Version: ${lastSuccessBuildVersion}"
+                    if(env.ROLL_BACK && env.ROLL_BACK == 'true') {
+                        echo "Build failed and rolled back to last successfull version: ${lastSuccessBuildVersion}"
+                    } else {
+                        echo "Build failed"
+                    }                    
                 }
             }
         }
