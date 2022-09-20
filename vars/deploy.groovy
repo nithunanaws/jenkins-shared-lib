@@ -30,19 +30,19 @@ def runJob(def jobName, def isStageDisabled) {
 
 def runStage(def stageName, def jobName, def isStageDisabled) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-		if(env.IS_STAGE_FAILED == 'true') {
-			error("Failing ${stageName} due to ${STAGE_FAILED} failure")
+		if(env.IS_ANY_STAGE_FAILED == 'true') {
+			error("Failing ${stageName} due to ${FAILED_STAGE_NAME} failure")
 		}
 		try {
-			if(env.IS_STAGE_FAILED == 'false') {
+			if(env.IS_ANY_STAGE_FAILED == 'false') {
 				def jobResult = runJob(jobName, isStageDisabled)
 				if(jobName.contains("build")) {
 					env.VERSION = jobResult.buildVariables.VERSION
 				}			
 			} 								
 		} catch(Exception e) {					
-			env.IS_STAGE_FAILED = 'true'
-			env.STAGE_FAILED = stageName
+			env.IS_ANY_STAGE_FAILED = 'true'
+			env.FAILED_STAGE_NAME = stageName
 			error("${jobName} Failed")
 		}
 	}	
@@ -93,7 +93,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deploymentType}-Build") {
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
-				env.IS_STAGE_FAILED = 'false'
+				env.IS_ANY_STAGE_FAILED = 'false'
 				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled)				
 			}
         }
