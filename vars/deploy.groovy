@@ -43,7 +43,7 @@ def runStage(def stageName, def jobName, def isStageDisabled) {
 		} catch(Exception e) {
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_STAGE_NAME = stageName
-			error("Failing due to ${jobName} Failed")
+			error("Failing due to ${jobName} failure")
 		}
 	}
 }
