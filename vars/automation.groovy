@@ -110,12 +110,14 @@ def rollbackApp(def deploymentType, def pipelineParams, def jobName) {
 }
 
 def getFailedDeploymentEnv(def deployEnvs) {	
+	def failedEnv
 	for(deployEnv in deployEnvs) {
 		if(env.FAILED_STAGE_NAME.contains(deployEnv)) {
-			return deployEnv
+			failedEnv = deployEnv
+			break
 		}
 	}
-	return null
+	return failedEnv
 }
 
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
