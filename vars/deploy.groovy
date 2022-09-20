@@ -31,7 +31,7 @@ def runJob(def jobName, def isStageDisabled) {
 def runStage(def stageName, def jobName, def isStageDisabled) {
 	def jobResult
 	if(env.IS_STAGE_FAILED == 'true') {
-		error("Failing ${stageName} due to ${env.STAGE_FAILED} failure")
+		sh 'exit 1'
 	}
 	try {
 		if(env.IS_STAGE_FAILED == 'false') {
@@ -43,7 +43,8 @@ def runStage(def stageName, def jobName, def isStageDisabled) {
 	} catch(Exception e) {					
 		env.IS_STAGE_FAILED = 'true'
 		env.STAGE_FAILED = stageName
-		currentBuild.result = 'FAILURE'		
+		currentBuild.result = 'FAILURE'
+		sh 'exit 1'
 	}
 }
 
