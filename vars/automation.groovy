@@ -90,7 +90,7 @@ def deployApp(def deploymentType, def pipelineParams, def jobName) {
     def envs = getDeploymentEnvironments(deploymentType)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, deploymentType, pipelineParams, jobName)
+        doDeploy(deployEnv, pipelineParams, jobName)
     }
 }
 
@@ -100,7 +100,7 @@ def doRollback(def deploymentType, def pipelineParams, def jobName) {
 	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
 	def rollbackEnvs = deployEnvs.take(idx + 1)
 	for(rollbackEnv in rollbackEnvs) {
-		doDeploy(rollbackEnv, deploymentType, pipelineParams, jobName)
+		doDeploy(rollbackEnv, pipelineParams, jobName)
 	}
 }
 
@@ -125,7 +125,7 @@ def rollbackApp(def deploymentType) {
 	}
 }
 
-def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
+def doDeploy(def deployEnv, def pipelineParams, def jobName) {
     if(deployEnv == "INT") {
         stage("Build") {
             script {								
