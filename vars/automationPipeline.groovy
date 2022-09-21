@@ -37,15 +37,14 @@ def call(body) {
                 }
                 steps {
                     script {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            def failedEnv = automation.getFailedDeploymentEnv(env.DEPLOYMENT_TYPE)
-                            if(failedEnv) {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {                            
+                            if(env.FAILED_ENV) {
                                 lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
                                 def rollbackRun = build(
                                     job: "${env.JOB_NAME}-Rollback",
                                     parameters: [
                                             string(name: 'VERSION', value: lastSuccessBuildVersion),
-                                            string(name: 'FAILED_ENV', value: failedEnv)                                            
+                                            string(name: 'FAILED_ENV', value: env.FAILED_ENV)                                            
                                     ]
                                 )
                                 if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
