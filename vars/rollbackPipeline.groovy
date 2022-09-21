@@ -28,15 +28,15 @@ def call(body) {
 		environment {
             VERSION = "${env.VERSION}"
             FAILED_ENVIRONMENT = "${env.FAILED_ENVIRONMENT}"
-            DEPLOYMENT_TYPE = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
         }
 		
         stages {
-            stage('Rollback Preparation') { 
+            stage('Preparation') { 
                 steps {
                     script { 
                         env.IS_ANY_STAGE_FAILED = 'false'                        
-                        automation.doRollback(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
+                        automation.doRollback(env.deploymentType, pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
             }
@@ -47,7 +47,7 @@ def call(body) {
             }
             success {
                 script {
-                    currentBuild.description = "${env.DEPLOYMENT_TYPE}_ROLLBACK ${env.VERSION}"
+                    currentBuild.description = "${env.deploymentType}_ROLLBACK ${env.VERSION}"
                 }
             }
 			failure {

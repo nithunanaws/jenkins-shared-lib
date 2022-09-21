@@ -106,7 +106,7 @@ def doRollback(def deploymentType, def pipelineParams, def jobName) {
 
 def rollbackApp(def deploymentType) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {                            
-		if(env.FAILED_ENV) {
+		if(env.FAILED_ENV && !env.FAILED_STAGE_NAME.contains('Build')) {
 			env.LAST_SUCCESS_BUILD_VERSION = getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
 			def rollbackRun = build(
 				job: "${env.JOB_NAME}-Rollback",

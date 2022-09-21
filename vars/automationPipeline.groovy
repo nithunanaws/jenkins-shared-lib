@@ -16,14 +16,14 @@ def call(body) {
         agent any
 
 		environment {
-            DEPLOYMENT_TYPE = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
         }
 		
         stages {
-            stage('Deployment') {
+            stage('Preparation') {
                 steps {
                     script {						
-                        automation.deployApp(env.DEPLOYMENT_TYPE, pipelineParams, env.JOB_NAME)
+                        automation.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
                     }
                 }
             }
@@ -35,7 +35,7 @@ def call(body) {
                 }
                 steps {
                     script {
-                        automation.rollbackApp(env.DEPLOYMENT_TYPE)
+                        automation.rollbackApp(env.deploymentType)
                     }
                 }
             }
@@ -46,15 +46,15 @@ def call(body) {
             }
             success {
                 script {
-                    currentBuild.description = "${env.DEPLOYMENT_TYPE} ${env.VERSION}"
+                    currentBuild.description = "${env.deploymentType} ${env.VERSION}"
                 }
             }
 			failure {
                 script {
                     if(env.ROLL_BACK && env.ROLL_BACK == 'true') {
-                        currentBuild.description = "${env.DEPLOYMENT_TYPE}_ROLLBACK ${env.LAST_SUCCESS_BUILD_VERSION}"
+                        currentBuild.description = "${env.deploymentType}_ROLLBACK ${env.LAST_SUCCESS_BUILD_VERSION}"
                         echo "Deployment failed and rolled back to last successfull version: ${env.LAST_SUCCESS_BUILD_VERSION}"
-                    } else if(env.ROLL_BACK && env.ROLL_BACK == 'false') {
+                    } else if(env.ROLL_BACK || env.ROLL_BACK == 'false') {
                         echo "Deployment failed and Rollback skipped"
                     } else {
                         echo "Both Deployment and Rollback failed"
