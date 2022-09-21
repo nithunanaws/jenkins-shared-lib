@@ -30,7 +30,6 @@ def call(body) {
             stage('Rollback') {
                 when {
                     expression {
-                        env.ROLL_BACK == 'false'
                         return (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == 'false') && (env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true')
                     }
                 }
@@ -54,7 +53,7 @@ def call(body) {
                 script {
                     if(env.ROLL_BACK && env.ROLL_BACK == 'true') {                        
                         echo "Deployment failed and rolled back to last successfull version: ${env.LAST_SUCCESS_BUILD_VERSION}"
-                    } else if(env.ROLL_BACK || env.ROLL_BACK == 'false') {
+                    } else if(env.ROLL_BACK || env.ROLL_BACK == 'false' || pipelineParams.rollbackDisabled == 'true') {
                         echo "Deployment failed and Rollback skipped"
                     } else {
                         echo "Both Deployment and Rollback failed"
