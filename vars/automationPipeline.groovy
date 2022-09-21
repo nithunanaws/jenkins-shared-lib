@@ -53,7 +53,7 @@ def call(body) {
                                 }
                             } else {
                                 env.ROLL_BACK = 'false'
-                                markStageAsSkipped(env.STAGE_NAME, true)                                
+                                automation.markStageAsSkipped(env.STAGE_NAME, true)                                
                             }                            
                         }
                         
