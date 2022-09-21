@@ -26,8 +26,8 @@ def call(body) {
         }
 
 		environment {
-            VERSION = ${env.VERSION}
-            FAILED_ENV = ${env.FAILED_ENV}            
+            VERSION = "${env.VERSION}"
+            FAILED_ENV = "${env.FAILED_ENV}"
             DEPLOYMENT_TYPE = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
         }
 		
