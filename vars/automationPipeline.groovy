@@ -18,34 +18,47 @@ def call(body) {
         agent any
 
 		environment {
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
-			JOB_NAME = 'test'
+            DEPLOYMENT_TYPE = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
         }
 		
         stages {
-            stage('Deployment Preparation') {
+            stage('Deployment') {
                 steps {
-                    script {
-						lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
-                        automation.deployApp(env.deploymentType, pipelineParams, env.JOB_NAME)
+                    script {						
+                        automation.deployApp(env.DEPLOYMENT_TYPE, pipelineParams, env.JOB_NAME)
                     }
                 }
             }
-            stage('Rollback Preparation') {
+            stage('Rollback') {
                 when {
                     expression {
-                        return env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true'
+                        return (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == 'false') 
+                        && (env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true')
                     }
                 }
                 steps {
                     script {
-                        pipelineParams.buildDisabled = true
-                        pipelineParams.acceptanceDisabled = true
-                        pipelineParams.regressionDisabled = true
-                        env.IS_ANY_STAGE_FAILED = 'false'                        
-                        env.VERSION = lastSuccessBuildVersion
-                        automation.rollbackApp(env.deploymentType, pipelineParams, env.JOB_NAME)
-                        currentBuild.result = 'FAILURE'
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            def failedEnv = automation.getFailedDeploymentEnv(env.DEPLOYMENT_TYPE)
+                            if(failedEnv) {
+                                lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
+                                def rollbackRun = build(
+                                    job: "${env.JOB_NAME}-Rollback",
+                                    parameters: [
+                                            string(name: 'VERSION', value: lastSuccessBuildVersion),
+                                            string(name: 'FAILED_ENV', value: failedEnv)                                            
+                                    ]
+                                )
+                                if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
+                                    env.ROLL_BACK = 'true'
+                                    error("Deployment rolled back")
+                                }
+                            } else {
+                                env.ROLL_BACK = 'false'
+                                Utils.markStageSkippedForConditional(env.STAGE_NAME)
+                            }                            
+                        }
+                        
                     }
                 }
             }
@@ -56,16 +69,18 @@ def call(body) {
             }
             success {
                 script {
-                    currentBuild.description = "${env.deploymentType} ${env.VERSION}"
+                    currentBuild.description = "${env.DEPLOYMENT_TYPE} ${env.VERSION}"
                 }
             }
 			failure {
                 script {
                     if(env.ROLL_BACK && env.ROLL_BACK == 'true') {
-                        echo "Build failed and rolled back to last successfull version: ${lastSuccessBuildVersion}"
+                        echo "Deployment failed and rolled back to last successfull version: ${lastSuccessBuildVersion}"
+                    } if(env.ROLL_BACK && env.ROLL_BACK == 'false') {
+                        echo "Deployment failed and roll back skipped"
                     } else {
-                        echo "Build failed"
-                    }                    
+                        echo "Both Deployment and Rollback failed"
+                    }
                 }
             }
         }

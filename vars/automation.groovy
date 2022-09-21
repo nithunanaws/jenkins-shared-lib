@@ -33,7 +33,7 @@ def runStage(def stageName, def jobName, def isStageDisabled, def parameters) {
 		try {
 			if(env.IS_ANY_STAGE_FAILED == 'false') {
 				def jobResult = runJob(jobName, isStageDisabled, parameters)
-				if(jobName.contains("build")) {
+				if(jobName.contains("Build")) {
 					env.VERSION = jobResult.buildVariables.VERSION
 				}
 			}
@@ -95,20 +95,16 @@ def deployApp(def deploymentType, def pipelineParams, def jobName) {
 def rollbackApp(def deploymentType, def pipelineParams, def jobName) {
 	def envs = getDeploymentEnvironments(deploymentType)
 	def deployEnvs = envs.split(',')
-	def failedEnv = getFailedDeploymentEnv(deployEnvs)	
-	if(failedEnv) {
-		env.ROLL_BACK = 'true'
-		def idx = deployEnvs.findIndexOf{ it ==  failedEnv}		
-		def rollbackEnvs = deployEnvs.take(idx + 1)
-		for(rollbackEnv in rollbackEnvs) {
-			doDeploy(rollbackEnv, deploymentType, pipelineParams, jobName)
-		}
-	} else {
-		Utils.markStageSkippedForConditional(env.STAGE_NAME)
+	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
+	def rollbackEnvs = deployEnvs.take(idx + 1)
+	for(rollbackEnv in rollbackEnvs) {
+		doDeploy(rollbackEnv, deploymentType, pipelineParams, jobName)
 	}
 }
 
-def getFailedDeploymentEnv(def deployEnvs) {	
+def getFailedDeploymentEnv(def deploymentType) {	
+	def envs = getDeploymentEnvironments(deploymentType)
+	def deployEnvs = envs.split(',')
 	def failedEnv
 	for(deployEnv in deployEnvs) {
 		if(env.FAILED_STAGE_NAME.contains(deployEnv)) {
@@ -127,9 +123,9 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
 				env.IS_ANY_STAGE_FAILED = 'false'
 				def parameters = [
-                                    string(name: 'BRANCH', value: 'develop')
+                                	string(name: 'BRANCH', value: 'develop')
                             ]
-				runStage(env.STAGE_NAME, "${jobName}-build", pipelineParams.buildDisabled, parameters)
+				runStage(env.STAGE_NAME, "${jobName}-Build", pipelineParams.buildDisabled, parameters)
 			}
         }
     }    
@@ -137,9 +133,9 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         script {
 			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 			def parameters = [
-                                    string(name: 'VERSION', value: env.VERSION)
+                                string(name: 'VERSION', value: env.VERSION)
                         ]	
-			runStage(env.STAGE_NAME, "${jobName}-deploy", pipelineParams.deployDisabled, parameters)
+			runStage(env.STAGE_NAME, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
 		}
     }
     if(deployEnv == "INT") {
@@ -147,7 +143,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
 				def parameters = []
-				runStage(env.STAGE_NAME, "${jobName}-acceptance", pipelineParams.acceptanceDisabled, parameters)
+				runStage(env.STAGE_NAME, "${jobName}-Acceptance", pipelineParams.acceptanceDisabled, parameters)
 			}
         }
     }
@@ -156,7 +152,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
 				def parameters = []
-				runStage(env.STAGE_NAME, "${jobName}-regression", pipelineParams.regressionDisabled, parameters)
+				runStage(env.STAGE_NAME, "${jobName}-Regression", pipelineParams.regressionDisabled, parameters)
 			}
         }
     }	
