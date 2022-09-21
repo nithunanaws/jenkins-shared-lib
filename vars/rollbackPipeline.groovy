@@ -47,7 +47,7 @@ def call(body) {
             }
             success {
                 script {
-                    currentBuild.description = "${env.DEPLOYMENT_TYPE} ${env.VERSION}"
+                    currentBuild.description = "${env.DEPLOYMENT_TYPE}_ROLLBACK ${env.VERSION}"
                 }
             }
 			failure {
