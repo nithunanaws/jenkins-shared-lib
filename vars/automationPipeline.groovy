@@ -11,8 +11,6 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
     body()
-		
-	def lastSuccessBuildVersion
 
     pipeline {
         agent any
@@ -37,25 +35,7 @@ def call(body) {
                 }
                 steps {
                     script {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {                            
-                            if(env.FAILED_ENV) {
-                                lastSuccessBuildVersion = automation.getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
-                                def rollbackRun = build(
-                                    job: "${env.JOB_NAME}-Rollback",
-                                    parameters: [
-                                            string(name: 'VERSION', value: lastSuccessBuildVersion),
-                                            string(name: 'FAILED_ENV', value: env.FAILED_ENV)                                            
-                                    ]
-                                )
-                                if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-                                    env.ROLL_BACK = 'true'                                    
-                                }
-                            } else {
-                                env.ROLL_BACK = 'false'
-                                automation.markStageAsSkipped(env.STAGE_NAME, true)                                
-                            }                            
-                        }
-                        
+                        automation.rollbackApp(env.DEPLOYMENT_TYPE)                    
                     }
                 }
             }
@@ -72,7 +52,7 @@ def call(body) {
 			failure {
                 script {
                     if(env.ROLL_BACK && env.ROLL_BACK == 'true') {
-                        echo "Deployment failed and rolled back to last successfull version: ${lastSuccessBuildVersion}"
+                        echo "Deployment failed and rolled back to last successfull version: ${env.LAST_SUCCESS_BUILD_VERSION}"
                     } else if(env.ROLL_BACK && env.ROLL_BACK == 'false') {
                         echo "Deployment failed and Rollback skipped"
                     } else {

@@ -94,13 +94,34 @@ def deployApp(def deploymentType, def pipelineParams, def jobName) {
     }
 }
 
-def rollbackApp(def deploymentType, def pipelineParams, def jobName) {
+def doRollback(def deploymentType, def pipelineParams, def jobName) {
 	def envs = getDeploymentEnvironments(deploymentType)
 	def deployEnvs = envs.split(',')
 	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
 	def rollbackEnvs = deployEnvs.take(idx + 1)
 	for(rollbackEnv in rollbackEnvs) {
 		doDeploy(rollbackEnv, deploymentType, pipelineParams, jobName)
+	}
+}
+
+def rollbackApp(def deploymentType) {
+	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {                            
+		if(env.FAILED_ENV) {
+			env.LAST_SUCCESS_BUILD_VERSION = getLastSuccessBuildVersion(currentBuild.getPreviousBuild(), deploymentType)
+			def rollbackRun = build(
+				job: "${env.JOB_NAME}-Rollback",
+				parameters: [
+						string(name: 'VERSION', value: env.LAST_SUCCESS_BUILD_VERSION),
+						string(name: 'FAILED_ENV', value: env.FAILED_ENV)                                            
+				]
+			)
+			if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
+				env.ROLL_BACK = 'true'                                    
+			}
+		} else {
+			env.ROLL_BACK = 'false'
+			markStageAsSkipped(env.STAGE_NAME, true)                                
+		}                            
 	}
 }
 
