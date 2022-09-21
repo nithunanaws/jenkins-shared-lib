@@ -116,11 +116,12 @@ def getFailedDeploymentEnv(def deploymentType) {
 }
 
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
-
     if(deployEnv == "INT") {
         stage("${deploymentType}-Build") {
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+				echo "${pipelineParams.buildDisabled}"
+				echo "Stage not skipped"
 				env.IS_ANY_STAGE_FAILED = 'false'
 				def parameters = [
                                 	string(name: 'BRANCH', value: 'develop')

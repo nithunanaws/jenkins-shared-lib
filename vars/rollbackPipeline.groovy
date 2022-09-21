@@ -35,7 +35,9 @@ def call(body) {
             stage('Rollback Preparation') { 
                 steps {
                     script { 
-                        env.IS_ANY_STAGE_FAILED = 'false'                        
+                        env.IS_ANY_STAGE_FAILED = 'false' 
+                        def baseJobName = getBaseJobName(env.JOB_NAME)                        
+                        echo "Base Job Name: ${baseJobName}"
                         automation.rollbackApp(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
