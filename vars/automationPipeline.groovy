@@ -39,9 +39,9 @@ def call(body) {
                 }
                 steps {
                     script {
-                        pipelineParams.buildDisabled = false
-                        pipelineParams.acceptanceDisabled = false
-                        pipelineParams.regressionDisabled = false
+                        pipelineParams.buildDisabled = true
+                        pipelineParams.acceptanceDisabled = true
+                        pipelineParams.regressionDisabled = true
                         env.IS_ANY_STAGE_FAILED = 'false'                        
                         env.VERSION = lastSuccessBuildVersion
                         automation.rollbackApp(env.deploymentType, pipelineParams, env.JOB_NAME)
