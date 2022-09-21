@@ -37,7 +37,8 @@ def runStage(def stageName, def jobName, def isStageDisabled, def parameters) {
 					env.VERSION = jobResult.buildVariables.VERSION
 				}
 			}
-		} catch(Exception e) {
+		} catch(Exception ex) {
+			echo ex
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_STAGE_NAME = stageName
 			error("Failing due to ${jobName} failure")
@@ -120,6 +121,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         stage("${deploymentType}-Build") {
             script {
 				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+				echo "${env.STAGE_NAME}"
 				echo "${pipelineParams.buildDisabled}"
 				echo "Stage not skipped"
 				env.IS_ANY_STAGE_FAILED = 'false'
