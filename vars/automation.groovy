@@ -27,7 +27,7 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
-			error("Force failing due to ${env.FAILED_STAGE_NAME} stage failure")
+			error("Failed due to ${env.FAILED_STAGE_NAME} failure")
 		}
 		try {
 			if(env.IS_ANY_STAGE_FAILED == 'false') {
@@ -42,7 +42,7 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_ENV = deployEnv
 			env.FAILED_STAGE_NAME = env.STAGE_NAME
-			error("Failing due to ${jobName} failure")
+			error("${jobName} Failed")
 		}
 	}
 }
