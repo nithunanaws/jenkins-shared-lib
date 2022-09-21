@@ -22,12 +22,12 @@ def call(body) {
 
         parameters {
             string(name: 'VERSION', description: 'Rollback Version', trim: true)
-            string(name: 'FAILED_ENV', description: 'Failed Environment', trim: true)            
+            string(name: 'FAILED_ENVIRONMENT', description: 'Failed Environment', trim: true)            
         }
 
 		environment {
             VERSION = "${env.VERSION}"
-            FAILED_ENV = "${env.FAILED_ENV}"
+            FAILED_ENVIRONMENT = "${env.FAILED_ENVIRONMENT}"
             DEPLOYMENT_TYPE = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
         }
 		
