@@ -30,6 +30,7 @@ def call(body) {
             stage('Rollback') {
                 when {
                     expression {
+                        env.ROLL_BACK == 'false'
                         return (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == 'false') && (env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true')
                     }
                 }

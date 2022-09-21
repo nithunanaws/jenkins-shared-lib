@@ -118,8 +118,7 @@ def rollbackApp(def deploymentType) {
 			if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
 				env.ROLL_BACK = 'true'                                    
 			}
-		} else {
-			env.ROLL_BACK = 'false'
+		} else {			
 			markStageAsSkipped(env.STAGE_NAME, true)                                
 		}                            
 	}
