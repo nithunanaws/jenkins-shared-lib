@@ -118,7 +118,7 @@ def getFailedDeploymentEnv(def deploymentType) {
 
 def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName) {
     if(deployEnv == "INT") {
-        stage("${deploymentType}-Build") {
+        stage("Build") {
             script {								
 				env.IS_ANY_STAGE_FAILED = 'false'
 				def parameters = [
@@ -139,7 +139,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
 		}
     }
     if(deployEnv == "INT") {
-        stage("${deployEnv}-Acceptance") {
+        stage("Acceptance") {
             script {				
 				def parameters = []
 				runStage(env.STAGE_NAME, "${jobName}-Acceptance", pipelineParams.acceptanceDisabled, parameters)
@@ -148,7 +148,7 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         }
     }
     if(deployEnv == "QAR") {
-        stage("${deployEnv}-Regression") {
+        stage("Regression") {
             script {				
 				def parameters = []
 				runStage(env.STAGE_NAME, "${jobName}-Regression", pipelineParams.regressionDisabled, parameters)
