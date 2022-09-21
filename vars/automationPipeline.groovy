@@ -32,8 +32,7 @@ def call(body) {
             stage('Rollback') {
                 when {
                     expression {
-                        return (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == 'false') 
-                        && (env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true')
+                        return (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == 'false') && (env.IS_ANY_STAGE_FAILED != null  && env.IS_ANY_STAGE_FAILED == 'true')
                     }
                 }
                 steps {
