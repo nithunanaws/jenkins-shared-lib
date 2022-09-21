@@ -19,8 +19,7 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 			result = build(job: jobName, parameters: parameters)
 		} else {
 			result = build(job: jobName)
-		}
-		
+		}		
 	}
 	return result
 }
@@ -131,29 +130,29 @@ def doDeploy(def deployEnv, def deploymentType, def pipelineParams, def jobName)
         }
     }    
     stage("${deployEnv}-Deploy") {
-        script {
-			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+        script {			
 			def parameters = [
                                 string(name: 'VERSION', value: env.VERSION)
                         ]	
 			runStage(env.STAGE_NAME, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
+			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 		}
     }
     if(deployEnv == "INT") {
         stage("${deployEnv}-Acceptance") {
-            script {
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
+            script {				
 				def parameters = []
 				runStage(env.STAGE_NAME, "${jobName}-Acceptance", pipelineParams.acceptanceDisabled, parameters)
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
 			}
         }
     }
     if(deployEnv == "QAR") {
         stage("${deployEnv}-Regression") {
-            script {
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
+            script {				
 				def parameters = []
 				runStage(env.STAGE_NAME, "${jobName}-Regression", pipelineParams.regressionDisabled, parameters)
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
 			}
         }
     }	
