@@ -35,7 +35,7 @@ def call(body) {
                 }
                 steps {
                     script {
-                        automation.rollbackApp(env.DEPLOYMENT_TYPE)                    
+                        automation.rollbackApp(env.DEPLOYMENT_TYPE)
                     }
                 }
             }
