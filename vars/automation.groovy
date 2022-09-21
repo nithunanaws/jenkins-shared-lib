@@ -72,7 +72,7 @@ def populateSuccessBuilds(def build, def successBuilds) {
 	def allBuilds = []
 	populateAllBuilds(build, allBuilds)
 	for(eachBuild in allBuilds) {
-		if(eachBuild != null && eachBuild.getResult() != 'FAILURE') {
+		if(eachBuild != null && eachBuild.getResult() == 'SUCCESS') {
 			successBuilds.add(eachBuild)
 		}
 	}
