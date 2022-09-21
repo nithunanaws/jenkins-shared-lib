@@ -49,8 +49,7 @@ def call(body) {
                                     ]
                                 )
                                 if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-                                    env.ROLL_BACK = 'true'
-                                    error("Deployment rolled back to last successfull version: ${lastSuccessBuildVersion}")
+                                    env.ROLL_BACK = 'true'                                    
                                 }
                             } else {
                                 env.ROLL_BACK = 'false'
@@ -74,7 +73,7 @@ def call(body) {
 			failure {
                 script {
                     if(env.ROLL_BACK && env.ROLL_BACK == 'true') {
-                        echo "Deployment failed and rolled back"
+                        echo "Deployment failed and rolled back to last successfull version: ${lastSuccessBuildVersion}"
                     } else if(env.ROLL_BACK && env.ROLL_BACK == 'false') {
                         echo "Deployment failed and Rollback skipped"
                     } else {
