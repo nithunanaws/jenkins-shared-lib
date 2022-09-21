@@ -53,7 +53,7 @@ def call(body) {
                                 }
                             } else {
                                 env.ROLL_BACK = 'false'
-                                Utils.markStageSkippedForConditional(env.STAGE_NAME)
+                                markStageAsSkipped(env.STAGE_NAME, true)                                
                             }                            
                         }
                         
