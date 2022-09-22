@@ -19,7 +19,7 @@ def call(body) {
         parameters {
             string(name: 'VERSION', description: 'Rollback Version', trim: true)
             string(name: 'FAILED_ENVIRONMENT', description: 'Failed Environment', trim: true)
-            string(name: 'DEPLOYMENT_TYPE', description: 'Deployment Type', trim: true)            
+            string(name: 'DEPLOYMENT_TYPE', description: 'Deployment Type', trim: true)
         }
 
 		environment {
@@ -32,7 +32,7 @@ def call(body) {
             stage('Preparation') { 
                 steps {
                     script { 
-                        env.IS_ANY_STAGE_FAILED = 'false'                        
+                        env.IS_ANY_STAGE_FAILED = 'false'
                         automation.doRollback(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
