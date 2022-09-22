@@ -112,7 +112,8 @@ def rollbackApp(def deploymentType) {
 				job: "${env.JOB_NAME}-Rollback",
 				parameters: [
 						string(name: 'VERSION', value: env.LAST_SUCCESS_BUILD_VERSION),
-						string(name: 'FAILED_ENVIRONMENT', value: env.FAILED_ENV)                                            
+						string(name: 'FAILED_ENVIRONMENT', value: env.FAILED_ENV)
+						string(name: 'DEPLOYMENT_TYPE', value: deploymentType)
 				]
 			)
 			if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {

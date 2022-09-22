@@ -1,9 +1,5 @@
 #!/usr/bin/env groovy
 
-def valueOrDefault(val, defaultVal) {
-    val != null ? val : defaultVal
-}
-
 def getBaseJobName(def jobName) {
     def strs = jobName.split('-')
     return strs[0]
@@ -22,13 +18,14 @@ def call(body) {
 
         parameters {
             string(name: 'VERSION', description: 'Rollback Version', trim: true)
-            string(name: 'FAILED_ENVIRONMENT', description: 'Failed Environment', trim: true)            
+            string(name: 'FAILED_ENVIRONMENT', description: 'Failed Environment', trim: true)
+            string(name: 'DEPLOYMENT_TYPE', description: 'Deployment Type', trim: true)            
         }
 
 		environment {
             VERSION = "${env.VERSION}"
             FAILED_ENVIRONMENT = "${env.FAILED_ENVIRONMENT}"
-            deploymentType = valueOrDefault(pipelineParams.deploymentType, 'FUNCTIONAL')
+            DEPLOYMENT_TYPE = "${env.DEPLOYMENT_TYPE}"
         }
 		
         stages {
@@ -36,7 +33,7 @@ def call(body) {
                 steps {
                     script { 
                         env.IS_ANY_STAGE_FAILED = 'false'                        
-                        automation.doRollback(env.deploymentType, pipelineParams, getBaseJobName(env.JOB_NAME))
+                        automation.doRollback(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
             }
