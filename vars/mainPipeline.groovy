@@ -1,46 +1,48 @@
 #!/usr/bin/env groovy
 
-def deploy(def jobName) {   
+def deploy(def jobName) {    
     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-        try {
-            deployRun = build(
-                    job: jobName,
-                    parameters: [
-                            string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE)
-                    ]
-            )
-            if(deployRun != null && deployRun.getResult() == 'SUCCESS') {
-                echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
-                env.VERSION = deployRun.buildVariables.VERSION
-                deployStatus = 'SUCCESS'
-            }
-        } catch (Exception ex) {
+        deployRun = build(
+                job: jobName,
+                parameters: [
+                        string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE)
+                ],
+                propagate: false
+        )
+        if(deployRun != null && deployRun.getResult() == 'SUCCESS') {
+            echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
+            env.VERSION = deployRun.buildVariables.VERSION
+            deployStatus = 'SUCCESS'
+        }
+        if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             deployStatus = 'FAILED'
             failedEnv = deployRun.buildVariables.FAILED_ENV
             failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME
             echo "${env.DEPLOYMENT_TYPE} deployment is failed"
             sh 'exit 1'
-        }        
+        }
     }
 }
 
 def rollback() {    
-    try {
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         rollbackRun = build(
                 job: jobName,
                 parameters: [
                         string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
                         string(name: 'VERSION', value: lastStableBuildVersion),
                         string(name: 'FAILED_ENV', value: failedEnv)
-                ]
+                ],
+                propagate: false
         )
-        if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-            echo "Rollback to version: ${lastStableBuildVersion} is successfull"
-            currentBuild.result = 'FAILURE'                            
+        if(rollbackRun != null && rollbackRun.getResult() == 'FAILURE') {  
+            error("Rollback to version: ${lastStableBuildVersion} is failed")           
         }
-    } catch (Exception ex) {
-        error("Rollback to version: ${lastStableBuildVersion} is failed")
-    }                    
+    }
+    if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
+        echo "Rollback to version: ${lastStableBuildVersion} is successfull"
+        currentBuild.result = 'FAILURE'                            
+    }
 }
 
 def getLastStableBuildVersion(def build, def deploymentType) {
