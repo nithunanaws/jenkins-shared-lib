@@ -27,6 +27,7 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
+			echo "${jobName} job is skipped due to ${env.FAILED_STAGE} failure"
 			Utils.markStageSkippedForConditional(env.STAGE_NAME)
 		} else {
 			def jobRun = runJob(jobName, isStageDisabled, parameters)
