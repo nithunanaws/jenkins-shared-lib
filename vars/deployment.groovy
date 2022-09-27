@@ -30,13 +30,13 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	}
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {		
 		def jobRun = runJob(jobName, isStageDisabled, parameters)
-		if(jobRun != null && jobRun.getResult == 'SUCCESS') {
+		if(jobRun != null && jobRun.getResult() == 'SUCCESS') {
 			if(jobName.contains("Build")) {
 				env.VERSION = jobResult.buildVariables.VERSION
 			}
 			echo "${jobName} job is successful"
 		}
-		if(jobRun != null && jobRun.getResult == 'FAILURE') {
+		if(jobRun != null && jobRun.getResult() == 'FAILURE') {
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_ENV = deployEnv
 			env.FAILED_STAGE = env.STAGE_NAME
