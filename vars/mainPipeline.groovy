@@ -1,19 +1,20 @@
 #!/usr/bin/env groovy
 
+def runJob(def jobName, def parameters) {
+    return build(job: jobName, parameters: parameters, propagate: false)
+}	
+
 def deploy(def jobName) {
     def deployRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        deployRun = build(
-                job: jobName,
-                parameters: [
-                        string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE)
-                ],
-                propagate: false
-        )
-        if(deployRun != null && deployRun.getResult() == 'SUCCESS') {
-            echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
+        def parameters = [
+                            string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE)
+                    ]
+        deployRun = runJob(jobName, parameters)
+        if(deployRun != null && deployRun.getResult() == 'SUCCESS') {            
             env.VERSION = deployRun.buildVariables.VERSION
             deployStatus = 'SUCCESS'
+            echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
         }
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             env.DEPLOY_STATUS = 'FAILED'
@@ -27,21 +28,18 @@ def deploy(def jobName) {
 def rollback(def jobName) {    
     def rollbackRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        rollbackRun = build(
-                job: jobName,
-                parameters: [
-                        string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
-                        string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
-                        string(name: 'FAILED_ENV', value: env.FAILED_ENV)
-                ],
-                propagate: false
-        )
+        def parameters = [
+                            string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
+                            string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
+                            string(name: 'FAILED_ENV', value: env.FAILED_ENV)
+                    ]
+        rollbackRun = runJob(jobName, parameters)        
+        if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
+            echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is successfull"       
+        }
         if(rollbackRun != null && rollbackRun.getResult() == 'FAILURE') {  
             error("Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is failed")           
         }
-    }
-    if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-        echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is successfull"       
     }
 }
 
