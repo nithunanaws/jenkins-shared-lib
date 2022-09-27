@@ -143,8 +143,13 @@ def call(body) {
                     }
                 }
                 steps {
-                    script {                        
-                        rollback("${env.JOB_NAME}-Rollback")                        
+                    script {
+                        if(env.DEPLOYMENT_TYPE == 'FUNCTIONAL') {
+                            rollback("${env.JOB_NAME}-Functional-Rollback")
+                        }  
+                        if(env.DEPLOYMENT_TYPE == 'RELEASE') {
+                            rollback("${env.JOB_NAME}-Release-Rollback")
+                        }                                             
                     }
                 }
             }
