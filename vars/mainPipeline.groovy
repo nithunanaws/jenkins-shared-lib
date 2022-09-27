@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 
-def deploy(def jobName) {
-    echo "${env.DEPLOYMENT_TYPE} deployment started"
+def deploy(def jobName) {    
     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
         deployRun = build(
                 job: jobName,
@@ -10,6 +9,7 @@ def deploy(def jobName) {
                 ]
         )
         if(deployRun != null && deployRun.getResult() == 'SUCCESS') {
+            echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
             env.VERSION = deployRun.buildVariables.VERSION
             deployStatus = 'SUCCESS'
         }
@@ -17,13 +17,13 @@ def deploy(def jobName) {
             deployStatus = 'FAILED'
             failedEnv = deployRun.buildVariables.FAILED_ENV
             failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME
-            error("${env.DEPLOYMENT_TYPE} Deployment Failed")
+            echo "${env.DEPLOYMENT_TYPE} deployment is failed"
+            sh 'exit 1'
         }
     }
 }
 
-def rollback() {
-    echo "Rollback to version: ${lastStableBuildVersion} started"
+def rollback() {    
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         rollbackRun = build(
                 job: jobName,
@@ -34,11 +34,11 @@ def rollback() {
                 ]
         )
         if(rollbackRun != null && rollbackRun.getResult() == 'FAILURE') {  
-            error("Rollback to version: ${lastStableBuildVersion} failed")           
+            error("Rollback to version: ${lastStableBuildVersion} is failed")           
         }
     }
     if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-        echo "Rollback to version: ${lastStableBuildVersion} succeeded"
+        echo "Rollback to version: ${lastStableBuildVersion} is successfull"
         currentBuild.result = 'FAILURE'                            
     }
 }
