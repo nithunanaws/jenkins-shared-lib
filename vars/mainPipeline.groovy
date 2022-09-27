@@ -117,7 +117,7 @@ def call(body) {
                 }
                 steps {
                     script {                        
-                        deploy("${env.JOB_NAME}-Functional")
+                        deploy("${env.JOB_NAME}-Functional-Deployment")
                     }
                 }
             }
@@ -129,7 +129,7 @@ def call(body) {
                 }
                 steps {
                     script {                        
-                        deploy("${env.JOB_NAME}-Release")
+                        deploy("${env.JOB_NAME}-Release-Deployment")
                     }
                 }
             }                       
