@@ -16,10 +16,8 @@ def deploy(def jobName) {
         }
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             deployStatus = 'FAILED'
-            failedEnv = deployRun.buildVariables.FAILED_ENV
-            echo "Failed Env: ${failedEnv}"
-            failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME
-             echo "Failed Stage: ${failedStageName}"
+            failedEnv = deployRun.buildVariables.FAILED_ENV            
+            failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME             
             echo "${env.DEPLOYMENT_TYPE} deployment is failed"
             sh 'exit 1'
         }
@@ -149,8 +147,14 @@ def call(body) {
                 when {
                     expression {
                         def isRollbackDisabled = (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == false)
-                        def isDeployFailed = (deployStatus != null  && deployStatus == 'FAILED')                        
-                        return isRollbackDisabled && isDeployFailed && (failedStageName != null && !failedStageName.contains('Build'))
+                        echo "Failed Env: ${failedEnv}"
+                        echo "Failed Stage: ${failedStageName}"
+                        echo "Deploy Status: ${deployStatus}"
+                        def isDeployFailed = (deployStatus != null  && deployStatus == 'FAILED')
+                        echo "Deployed Failed: ${isDeployFailed}"
+                        def isStageFailed = (failedStageName != null && !failedStageName.contains('Build'))
+                        echo "Stage Failed: ${isStageFailed}"                     
+                        return isRollbackDisabled && isDeployFailed && isStageFailed
                     }
                 }
                 steps {
