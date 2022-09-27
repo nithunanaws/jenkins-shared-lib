@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 
-def deploy(def jobName) {    
+def deploy(def jobName) {
+    def deployRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         deployRun = build(
                 job: jobName,
@@ -15,33 +16,32 @@ def deploy(def jobName) {
             deployStatus = 'SUCCESS'
         }
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
-            deployStatus = 'FAILED'
-            failedEnv = deployRun.buildVariables.FAILED_ENV            
-            failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME             
-            echo "${env.DEPLOYMENT_TYPE} deployment is failed"
-            sh 'exit 1'
+            env.DEPLOY_STATUS = 'FAILED'
+            env.FAILED_ENV = deployRun.buildVariables.FAILED_ENV            
+            env.FAILED_STAGE = deployRun.buildVariables.FAILED_STAGE_NAME             
+            error("${env.DEPLOYMENT_TYPE} deployment is failed")            
         }
     }
 }
 
 def rollback() {    
+    def rollbackRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         rollbackRun = build(
                 job: jobName,
                 parameters: [
                         string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
-                        string(name: 'VERSION', value: lastStableBuildVersion),
-                        string(name: 'FAILED_ENV', value: failedEnv)
+                        string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
+                        string(name: 'FAILED_ENV', value: env.FAILED_ENV)
                 ],
                 propagate: false
         )
         if(rollbackRun != null && rollbackRun.getResult() == 'FAILURE') {  
-            error("Rollback to version: ${lastStableBuildVersion} is failed")           
+            error("Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is failed")           
         }
     }
     if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-        echo "Rollback to version: ${lastStableBuildVersion} is successfull"
-        currentBuild.result = 'FAILURE'                            
+        echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is successfull"       
     }
 }
 
@@ -92,13 +92,6 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    def deployRun
-    def rollbackRun
-    def deployStatus
-    def lastStableBuildVersion
-    def failedEnv
-    def failedStageName
-
     pipeline {
         agent any
 
@@ -114,8 +107,8 @@ def call(body) {
             stage('Preparation') {
                 steps {
                     script {
-                        lastStableBuildVersion = getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
-                        echo "Last Stable Build Version: ${lastStableBuildVersion}"
+                        env.LAST_STABLE_BUILD_VERSION = getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
+                        echo "Last Stable Build Version: ${LAST_STABLE_BUILD_VERSION}"
                     }
                 }
             }
@@ -146,14 +139,9 @@ def call(body) {
             stage('Rollback') {
                 when {
                     expression {
-                        def isRollbackDisabled = (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == false)
-                        echo "Failed Env: ${failedEnv}"
-                        echo "Failed Stage: ${failedStageName}"
-                        echo "Deploy Status: ${deployStatus}"
-                        def isDeployFailed = (deployStatus != null  && deployStatus == 'FAILED')
-                        echo "Deployed Failed: ${isDeployFailed}"
-                        def isStageFailed = (failedStageName != null && !failedStageName.contains('Build'))
-                        echo "Stage Failed: ${isStageFailed}"                     
+                        def isRollbackDisabled = (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == false)                        
+                        def isDeployFailed = (env.DEPLOY_STATUS  && env.DEPLOY_STATUS == 'FAILED')                        
+                        def isStageFailed = (env.FAILED_STAGE != null && !env.FAILED_STAGE.contains('Build'))                        
                         return isRollbackDisabled && isDeployFailed && isStageFailed
                     }
                 }
