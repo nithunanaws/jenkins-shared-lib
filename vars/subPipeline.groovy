@@ -1,5 +1,10 @@
 #!/usr/bin/env groovy
 
+def getBaseJobName(def jobName) {
+    def strs = jobName.split('-')
+    return strs[0]
+}
+
 def call(body) {
 	
 	// evaluate the body block, and collect configuration into the object
