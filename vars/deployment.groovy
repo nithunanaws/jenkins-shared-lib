@@ -32,7 +32,7 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 		def jobRun = runJob(jobName, isStageDisabled, parameters)
 		if(jobRun != null && jobRun.getResult() == 'SUCCESS') {
 			if(jobName.contains("Build")) {
-				env.VERSION = jobResult.buildVariables.VERSION
+				env.VERSION = jobRun.buildVariables.VERSION
 			}
 			echo "${jobName} job is successful"
 		}
