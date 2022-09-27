@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def deploy(def jobName) {    
-    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         deployRun = build(
                 job: jobName,
                 parameters: [
@@ -17,7 +17,9 @@ def deploy(def jobName) {
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             deployStatus = 'FAILED'
             failedEnv = deployRun.buildVariables.FAILED_ENV
+            echo "Failed Env: ${failedEnv}"
             failedStageName = deployRun.buildVariables.FAILED_STAGE_NAME
+             echo "Failed Stage: ${failedStageName}"
             echo "${env.DEPLOYMENT_TYPE} deployment is failed"
             sh 'exit 1'
         }
