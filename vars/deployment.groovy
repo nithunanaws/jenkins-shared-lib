@@ -16,34 +16,32 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 	def result
 	if(isStageDisabled == null || isStageDisabled == false) {
 		if(parameters) {
-			result = build(job: jobName, parameters: parameters)
+			result = build(job: jobName, parameters: parameters, propagate: false)
 		} else {
-			result = build(job: jobName)
+			result = build(job: jobName, propagate: false)
 		}		
 	}
 	return result
 }
 
 def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
-	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-		if(env.IS_ANY_STAGE_FAILED == 'true') {
-			error("Failed due to ${env.FAILED_STAGE_NAME} failure")
-		}
-		try {
-			if(env.IS_ANY_STAGE_FAILED == 'false') {
-				def jobResult = runJob(jobName, isStageDisabled, parameters)
-				if(jobResult != null) {
-					if(jobName.contains("Build")) {
-						env.VERSION = jobResult.buildVariables.VERSION
-					}
-				}				
+	if(env.IS_ANY_STAGE_FAILED == 'true') {
+		Utils.markStageSkippedForConditional(env.STAGE_NAME)			
+	}
+	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {		
+		def jobRun = runJob(jobName, isStageDisabled, parameters)
+		if(jobRun != null && jobRun.getResult == 'SUCCESS') {
+			if(jobName.contains("Build")) {
+				env.VERSION = jobResult.buildVariables.VERSION
 			}
-		} catch(Exception ex) {			
+			echo "${jobName} job is successful"
+		}
+		if(jobRun != null && jobRun.getResult == 'FAILURE') {
 			env.IS_ANY_STAGE_FAILED = 'true'
 			env.FAILED_ENV = deployEnv
-			env.FAILED_STAGE_NAME = env.STAGE_NAME
-			error("${jobName} Failed")
-		}
+			env.FAILED_STAGE = env.STAGE_NAME
+			error("${jobName} job is failed")
+		}		
 	}
 }
 

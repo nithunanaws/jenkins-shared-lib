@@ -19,7 +19,7 @@ def deploy(def jobName) {
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             env.DEPLOY_STATUS = 'FAILED'
             env.FAILED_ENV = deployRun.buildVariables.FAILED_ENV            
-            env.FAILED_STAGE = deployRun.buildVariables.FAILED_STAGE_NAME             
+            env.FAILED_STAGE = deployRun.buildVariables.FAILED_STAGE
             error("${env.DEPLOYMENT_TYPE} deployment is failed")            
         }
     }
