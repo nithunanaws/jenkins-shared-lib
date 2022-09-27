@@ -44,7 +44,7 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "${env.DEPLOYMENT_TYPE} deployment Failed"
+                    echo "${env.DEPLOYMENT_TYPE} deployment failed"
                 }
             }
         }

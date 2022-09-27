@@ -14,13 +14,13 @@ def deploy(def jobName) {
         if(deployRun != null && deployRun.getResult() == 'SUCCESS') {            
             env.VERSION = deployRun.buildVariables.VERSION
             deployStatus = 'SUCCESS'
-            echo "${env.DEPLOYMENT_TYPE} deployment is successfull"
+            echo "${env.DEPLOYMENT_TYPE} deployment successful"
         }
         if (deployRun != null && deployRun.getResult() == 'FAILURE') {
             env.DEPLOY_STATUS = 'FAILED'
             env.FAILED_ENV = deployRun.buildVariables.FAILED_ENV            
             env.FAILED_STAGE = deployRun.buildVariables.FAILED_STAGE
-            error("${env.DEPLOYMENT_TYPE} deployment is failed")            
+            error("${env.DEPLOYMENT_TYPE} deployment failed")            
         }
     }
 }
@@ -35,10 +35,10 @@ def rollback(def jobName) {
                     ]
         rollbackRun = runJob(jobName, parameters)        
         if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
-            echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is successfull"       
+            echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} successful"       
         }
         if(rollbackRun != null && rollbackRun.getResult() == 'FAILURE') {  
-            error("Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} is failed")           
+            error("Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} failed")           
         }
     }
 }
@@ -105,8 +105,7 @@ def call(body) {
             stage('Preparation') {
                 steps {
                     script {
-                        env.LAST_STABLE_BUILD_VERSION = getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
-                        echo "Last Stable Build Version: ${LAST_STABLE_BUILD_VERSION}"
+                        env.LAST_STABLE_BUILD_VERSION = getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)                        
                     }
                 }
             }
@@ -161,7 +160,7 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "${env.DEPLOYMENT_TYPE} deployment is failed"
+                    echo "${env.DEPLOYMENT_TYPE} deployment failed"
                 }
             }
         }
