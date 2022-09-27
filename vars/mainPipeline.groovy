@@ -66,11 +66,11 @@ def call(body) {
                             main.rollback("${env.JOB_NAME}-Functional-Rollback")
                         }  
                         if(env.DEPLOYMENT_TYPE == 'RELEASE') {
-                            main.rollback("${env.JOB_NAME}-Release-Rollback")
-                        
+                            main.rollback("${env.JOB_NAME}-Release-Rollback")                        
+                        }
                     }
                 }
-            }
+            }        
         }
         post {
             always {
