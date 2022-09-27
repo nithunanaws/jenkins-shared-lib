@@ -105,7 +105,7 @@ def call(body) {
         }
 
 		environment {
-            DEPLOYMENT_TYPE = "${env.DEPLOYMENT_TYPE} ?: 'FUNCTIONAL'"
+            DEPLOYMENT_TYPE = "${env.DEPLOYMENT_TYPE ?: 'FUNCTIONAL'}"
         }
 		
         stages {
@@ -145,8 +145,8 @@ def call(body) {
                 when {
                     expression {
                         def isRollbackDisabled = (pipelineParams.rollbackDisabled == null || pipelineParams.rollbackDisabled == false)
-                        def isDeployFailed = (deployStatus != null  && deployStatus == 'FAILED')
-                        return isRollbackDisabled && isDeployFailed && !failedStageName.contains('Build')
+                        def isDeployFailed = (deployStatus != null  && deployStatus == 'FAILED')                        
+                        return isRollbackDisabled && isDeployFailed && (failedStageName != null && !failedStageName.contains('Build'))
                     }
                 }
                 steps {
