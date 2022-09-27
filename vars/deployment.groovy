@@ -27,21 +27,22 @@ def runJob(def jobName, def isStageDisabled, def parameters) {
 def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 		if(env.IS_ANY_STAGE_FAILED == 'true') {
-			error("Failed due to ${env.FAILED_STAGE} failure")
-		}
-		def jobRun = runJob(jobName, isStageDisabled, parameters)
-		if(jobRun != null && jobRun.getResult() == 'SUCCESS') {
-			if(jobName.contains("Build")) {
-				env.VERSION = jobRun.buildVariables.VERSION
+			Utils.markStageSkippedForConditional(env.STAGE_NAME)
+		} else {
+			def jobRun = runJob(jobName, isStageDisabled, parameters)
+			if(jobRun != null && jobRun.getResult() == 'SUCCESS') {
+				if(jobName.contains("Build")) {
+					env.VERSION = jobRun.buildVariables.VERSION
+				}
+				echo "${jobName} job is successful"
 			}
-			echo "${jobName} job is successful"
-		}
-		if(jobRun != null && jobRun.getResult() == 'FAILURE') {
-			env.IS_ANY_STAGE_FAILED = 'true'
-			env.FAILED_ENV = deployEnv
-			env.FAILED_STAGE = env.STAGE_NAME
-			error("${jobName} job is failed")
-		}		
+			if(jobRun != null && jobRun.getResult() == 'FAILURE') {
+				env.IS_ANY_STAGE_FAILED = 'true'
+				env.FAILED_ENV = deployEnv
+				env.FAILED_STAGE = env.STAGE_NAME
+				error("${jobName} job is failed")
+			}
+		}				
 	}
 }
 
