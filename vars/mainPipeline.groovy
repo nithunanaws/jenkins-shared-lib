@@ -161,7 +161,7 @@ def call(body) {
             }
 			failure {
                 script {
-                    echo "${env.DEPLOYMENT_TYPE} Deployment Failed"
+                    echo "${env.DEPLOYMENT_TYPE} deployment is failed"
                 }
             }
         }
