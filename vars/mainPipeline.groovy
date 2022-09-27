@@ -24,7 +24,7 @@ def deploy(def jobName) {
     }
 }
 
-def rollback() {    
+def rollback(def jobName) {    
     def rollbackRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
         rollbackRun = build(
