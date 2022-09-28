@@ -47,7 +47,7 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 }
 
 def deploy(def pipelineParams, def jobName) {
-    def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE})
+    def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
         doDeploy(deployEnv, pipelineParams, jobName)
