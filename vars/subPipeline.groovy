@@ -28,7 +28,7 @@ def call(body) {
             stage('Preparation') {
                 steps {
                     script {						
-                        sub.deploy(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
+                        sub.deploy(pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
             }

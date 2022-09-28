@@ -23,7 +23,7 @@ def call(body) {
             stage('Preparation') {
                 steps {
                     script {
-                        env.LAST_STABLE_BUILD_VERSION = main.getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
+                        env.LAST_STABLE_BUILD_VERSION = main.getLastStableBuildVersion(currentBuild.getPreviousBuild())
                     }
                 }
             }

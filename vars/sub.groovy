@@ -46,16 +46,16 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	}
 }
 
-def deploy(def deploymentType, def pipelineParams, def jobName) {
-    def envs = getDeploymentEnvironments(deploymentType)
+def deploy(def pipelineParams, def jobName) {
+    def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE})
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
         doDeploy(deployEnv, pipelineParams, jobName)
     }
 }
 
-def rollback(def deploymentType, def pipelineParams, def jobName) {
-	def envs = getDeploymentEnvironments(deploymentType)
+def rollback( def pipelineParams, def jobName) {
+	def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
 	def deployEnvs = envs.split(',')
 	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
 	def rollbackEnvs = deployEnvs.take(idx + 1)

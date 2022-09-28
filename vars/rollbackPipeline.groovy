@@ -33,7 +33,7 @@ def call(body) {
                 steps {
                     script { 
                         env.IS_ANY_STAGE_FAILED = 'false'
-                        sub.rollback(env.DEPLOYMENT_TYPE, pipelineParams, getBaseJobName(env.JOB_NAME))
+                        sub.rollback(pipelineParams, getBaseJobName(env.JOB_NAME))
                     }
                 }
             }

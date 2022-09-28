@@ -43,12 +43,12 @@ def rollback(def jobName) {
     }
 }
 
-def getLastStableBuildVersion(def build, def deploymentType) {
+def getLastStableBuildVersion(def build) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
 	for(eachBuild in successBuilds) {
-		if(eachBuild.getDescription().contains(deploymentType)) {
+		if(eachBuild.getDescription().contains(env.DEPLOYMENT_TYPE)) {
 			successBuildsDesc.add(eachBuild.getDescription())
 		}
 	}
