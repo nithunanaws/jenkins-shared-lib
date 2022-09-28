@@ -54,7 +54,7 @@ def deploy(def pipelineParams, def jobName) {
     }
 }
 
-def rollback( def pipelineParams, def jobName) {
+def rollback(def pipelineParams, def jobName) {
 	def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
 	def deployEnvs = envs.split(',')
 	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
