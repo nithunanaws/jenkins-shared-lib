@@ -46,22 +46,12 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 	}
 }
 
-def deploy(def pipelineParams, def jobName) {
+def deploy(def pipelineParams, def jobName, def isRollback) {
     def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, pipelineParams, jobName, false)
+        doDeploy(deployEnv, pipelineParams, jobName, isRollback)
     }
-}
-
-def rollback(def pipelineParams, def jobName) {
-	def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
-	def deployEnvs = envs.split(',')
-	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
-	def rollbackEnvs = deployEnvs.take(idx + 1)
-	for(rollbackEnv in rollbackEnvs) {
-		doDeploy(rollbackEnv, pipelineParams, jobName, true)
-	}
 }
 
 def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback) {
@@ -84,6 +74,8 @@ def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback) {
 				parameters = [
                                 string(name: 'VERSION', value: env.VERSION)
                         ]
+				runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
+				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)			
 			} else {
 				if(deployEnv == "INT") {
 					parameters = [
@@ -94,9 +86,12 @@ def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback) {
                                 string(name: 'VERSION', value: env.VERSION)
                         ]
 				}
-			}
-			runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
-			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
+				if(deployEnv == env.FAILED_ENV) {
+					runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
+				} else {
+					markStageAsSkipped(env.STAGE_NAME, true)
+				}
+			}			
 		}
     }	
     if(deployEnv == "INT") {
