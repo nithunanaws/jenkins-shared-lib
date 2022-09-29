@@ -50,7 +50,7 @@ def deploy(def pipelineParams, def jobName) {
     def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
     def deployEnvs = envs.split(',')
     for(deployEnv in deployEnvs) {
-        doDeploy(deployEnv, pipelineParams, jobName)
+        doDeploy(deployEnv, pipelineParams, jobName, false)
     }
 }
 
@@ -60,11 +60,11 @@ def rollback(def pipelineParams, def jobName) {
 	def idx = deployEnvs.findIndexOf{ it ==  env.FAILED_ENV}
 	def rollbackEnvs = deployEnvs.take(idx + 1)
 	for(rollbackEnv in rollbackEnvs) {
-		doDeploy(rollbackEnv, pipelineParams, jobName)
+		doDeploy(rollbackEnv, pipelineParams, jobName, true)
 	}
 }
 
-def doDeploy(def deployEnv, def pipelineParams, def jobName) {
+def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback) {
     if(deployEnv == "INT") {
         stage("Build") {
             script {								
@@ -78,10 +78,23 @@ def doDeploy(def deployEnv, def pipelineParams, def jobName) {
         }
     }    
     stage("${deployEnv}-Deploy") {
-        script {			
-			def parameters = [
+        script {
+			def parameters
+			if(!isRollback) {
+				parameters = [
                                 string(name: 'VERSION', value: env.VERSION)
-                        ]	
+                        ]
+			} else {
+				if(deployEnv == "INT") {
+					parameters = [
+                                string(name: 'VERSION', value: env.FUNC_VERSION)
+                        ]
+				} else {
+					parameters = [
+                                string(name: 'VERSION', value: env.VERSION)
+                        ]
+				}
+			}
 			runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
 			markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)
 		}

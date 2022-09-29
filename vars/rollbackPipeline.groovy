@@ -18,12 +18,14 @@ def call(body) {
 
         parameters {
             string(name: 'VERSION', description: 'Rollback Version', trim: true)
+            string(name: 'FUNC_VERSION', description: 'Functional Version', trim: true)
             string(name: 'DEPLOYMENT_TYPE', description: 'Deployment Type', trim: true)
-            string(name: 'FAILED_ENV', description: 'Failed Environment', trim: true)            
+            string(name: 'FAILED_ENV', description: 'Failed Environment', trim: true)
         }
 
 		environment {
             VERSION = "${env.VERSION}"
+            FUNC_VERSION = "${env.FUNC_VERSION}"
             FAILED_ENV = "${env.FAILED_ENV}"            
             DEPLOYMENT_TYPE = "${env.DEPLOYMENT_TYPE}"            
         }

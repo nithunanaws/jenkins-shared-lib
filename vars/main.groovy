@@ -31,6 +31,7 @@ def rollback(def jobName) {
         def parameters = [
                             string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
                             string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
+                            string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
                             string(name: 'FAILED_ENV', value: env.FAILED_ENV)
                     ]
         rollbackRun = runJob(jobName, parameters)        
@@ -43,12 +44,12 @@ def rollback(def jobName) {
     }
 }
 
-def getLastStableBuildVersion(def build) {
+def getLastStableBuildVersion(def build, def deploymentType) {
 	def successBuilds = []
 	def successBuildsDesc = []
 	populateSuccessBuilds(build, successBuilds)
 	for(eachBuild in successBuilds) {
-		if(eachBuild.getDescription().contains(env.DEPLOYMENT_TYPE)) {
+		if(eachBuild.getDescription().contains(deploymentType)) {
 			successBuildsDesc.add(eachBuild.getDescription())
 		}
 	}
