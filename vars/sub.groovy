@@ -54,12 +54,19 @@ def deploy(def pipelineParams, def jobName, def isRollback) {
 			doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
 		}		
 	} else {
+		def foundFailedEnv = false
 		for(deployEnv in deployEnvs) {
-			if(deployEnv == env.FAILED_ENV) {
-				doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+			if(!foundFailedEnv) {
+				if(deployEnv == env.FAILED_ENV) {
+					foundFailedEnv = true
+					doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+				} else {
+					foundFailedEnv = false
+					doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+				}
 			} else {
 				doDeploy(deployEnv, pipelineParams, jobName, isRollback, true)
-			}			
+			}
 		}
 	}
 }
