@@ -34,14 +34,14 @@ def rollback(def jobName, def isDeployFailed) {
                         string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
                         string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
                         string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
-                        string(name: 'ROLLBACK_ENV', value: env.FAILED_ENV)
+                        string(name: 'FAILED_ENV', value: env.FAILED_ENV)
                 ]
         } else {
             parameters = [
                         string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
                         string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
                         string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
-                        string(name: 'ROLLBACK_ENV', value: 'INT')
+                        string(name: 'FAILED_ENV', value: 'INT')
                 ]
         }
         
