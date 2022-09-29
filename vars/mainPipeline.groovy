@@ -23,9 +23,11 @@ def call(body) {
             stage('Preparation') {
                 steps {
                     script {
-                        env.LAST_STABLE_BUILD_VERSION = main.getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)
+                        env.LAST_STABLE_BUILD_VERSION = main.getLastStableBuildVersion(currentBuild.getPreviousBuild(), env.DEPLOYMENT_TYPE)                        
                         if(env.DEPLOYMENT_TYPE == 'RELEASE') {
                             env.LAST_STABLE_FUNC_BUILD_VERSION = main.getLastStableBuildVersion(currentBuild.getPreviousBuild(), 'FUNCTIONAL')
+                        } else {
+                            env.LAST_STABLE_FUNC_BUILD_VERSION = env.LAST_STABLE_BUILD_VERSION
                         }
                     }
                 }
@@ -51,6 +53,9 @@ def call(body) {
                 steps {
                     script {
                         main.deploy("${env.JOB_NAME}-Release-Deployment")
+                        if(env.DEPLOY_STATUS  && env.DEPLOY_STATUS == 'SUCCESS') {
+                            main.rollback("${env.JOB_NAME}-Release-Rollback", false)
+                        }
                     }
                 }
             }
@@ -66,10 +71,10 @@ def call(body) {
                 steps {
                     script {
                         if(env.DEPLOYMENT_TYPE == 'FUNCTIONAL') {
-                            main.rollback("${env.JOB_NAME}-Functional-Rollback")
+                            main.rollback("${env.JOB_NAME}-Functional-Rollback", true)
                         }  
                         if(env.DEPLOYMENT_TYPE == 'RELEASE') {
-                            main.rollback("${env.JOB_NAME}-Release-Rollback")                        
+                            main.rollback("${env.JOB_NAME}-Release-Rollback", true)
                         }
                     }
                 }

@@ -25,15 +25,26 @@ def deploy(def jobName) {
     }
 }
 
-def rollback(def jobName) {
+def rollback(def jobName, def isDeployFailed) {
     def rollbackRun
     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        def parameters = [
-                            string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
-                            string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
-                            string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
-                            string(name: 'FAILED_ENV', value: env.FAILED_ENV)
-                    ]
+        def parameters
+        if(isDeployFailed) {
+            parameters = [
+                        string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
+                        string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
+                        string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
+                        string(name: 'ROLLBACK_ENV', value: env.FAILED_ENV)
+                ]
+        } else {
+            parameters = [
+                        string(name: 'DEPLOYMENT_TYPE', value: env.DEPLOYMENT_TYPE),
+                        string(name: 'VERSION', value: env.LAST_STABLE_BUILD_VERSION),
+                        string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
+                        string(name: 'ROLLBACK_ENV', value: 'INT')
+                ]
+        }
+        
         rollbackRun = runJob(jobName, parameters)        
         if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
             echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} successful"
