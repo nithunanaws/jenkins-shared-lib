@@ -86,10 +86,10 @@ def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback) {
                                 string(name: 'VERSION', value: env.VERSION)
                         ]
 				}
-				if(deployEnv == env.FAILED_ENV) {
-					runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
+				if(deployEnv != env.FAILED_ENV) {
+					markStageAsSkipped(env.STAGE_NAME, true)					
 				} else {
-					markStageAsSkipped(env.STAGE_NAME, true)
+					runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
 				}
 			}			
 		}
