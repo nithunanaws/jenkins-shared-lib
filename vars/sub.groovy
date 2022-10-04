@@ -12,6 +12,21 @@ def markStageAsSkipped(def stageName, def isStageDisabled) {
 	}
 }
 
+def getDeployEnvMap(def deploymentType) {
+	def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
+	def deployEnvs = envs.split(',')
+	def envList = ['INT','QAF','QAR']
+	def deployEnvMap = []
+	for(env in envList) {
+		if(deployEnvs.contains(env)) {
+			deployEnvMap.put(env, false)
+		} else {
+			deployEnvMap.put(env, true)
+		}
+	}
+	return deployEnvMap
+}
+
 def runJob(def jobName, def isStageDisabled, def parameters) {
 	def result
 	if(isStageDisabled == null || isStageDisabled == false) {
@@ -48,84 +63,102 @@ def runStage(def deployEnv, def jobName, def isStageDisabled, def parameters) {
 
 def deploy(def pipelineParams, def jobName, def isRollback) {
     def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
-    def deployEnvs = envs.split(',')	
+    def deployEnvs = envs.split(',')
+	def deployEnvMap = getDeployEnvMap(env.DEPLOYMENT_TYPE)
 	if(!isRollback) {
-		for(deployEnv in deployEnvs) {
-			doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+		for(deployEnv in deployEnvMap.keySet()) {
+			doDeploy(deployEnv, deployEnvMap[deployEnv], pipelineParams, jobName, isRollback, false)
 		}		
 	} else {
 		def foundFailedEnv = false
-		for(deployEnv in deployEnvs) {
+		for(deployEnv in deployEnvMap.keySet()) {
 			if(!foundFailedEnv) {
 				if(deployEnv == env.FAILED_ENV) {
 					foundFailedEnv = true
-					doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+					doDeploy(deployEnv, deployEnvMap[deployEnv], pipelineParams, jobName, isRollback, false)
 				} else {
 					foundFailedEnv = false
-					doDeploy(deployEnv, pipelineParams, jobName, isRollback, false)
+					doDeploy(deployEnv, deployEnvMap[deployEnv], pipelineParams, jobName, isRollback, false)
 				}
 			} else {
-				doDeploy(deployEnv, pipelineParams, jobName, isRollback, true)
+				doDeploy(deployEnv, deployEnvMap[deployEnv], pipelineParams, jobName, isRollback, true)
 			}
 		}
 	}
 }
 
-def doDeploy(def deployEnv, def pipelineParams, def jobName, def isRollback, def isDeploySkipped) {
+def doDeploy(def deployEnv, def isStageSkipped, def pipelineParams, def jobName, def isRollback, def isDeployStageSkipped) {
     if(deployEnv == "INT") {
         stage("Build") {
             script {								
 				env.IS_ANY_STAGE_FAILED = 'false'
-				def parameters = [
+				if(!isStageSkipped) {
+					def parameters = [
                                 	string(name: 'BRANCH', value: 'develop')
                             ]
-				runStage(deployEnv, "${jobName}-Build", pipelineParams.buildDisabled, parameters)
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+					runStage(deployEnv, "${jobName}-Build", pipelineParams.buildDisabled, parameters)
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.buildDisabled)
+				} else {
+					markStageAsSkipped(env.STAGE_NAME, true)
+				}
+				
 			}
         }
     }    
     stage("${deployEnv}-Deploy") {
         script {
-			def parameters
-			if(!isRollback) {
-				parameters = [
-                                string(name: 'VERSION', value: env.VERSION)
-                        ]
-				runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)			
+			if(!isStageSkipped) {
+				def parameters
+				if(!isRollback) {
+					parameters = [
+									string(name: 'VERSION', value: env.VERSION)
+							]
+					runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.deployDisabled)			
+				} else {
+					if(deployEnv == "INT") {
+						parameters = [
+									string(name: 'VERSION', value: env.FUNC_VERSION)
+							]
+					} else {
+						parameters = [
+									string(name: 'VERSION', value: env.VERSION)
+							]
+					}
+					if(!isDeployStageSkipped) {
+						runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)										
+					} else {
+						markStageAsSkipped(env.STAGE_NAME, true)
+					}
+				}
 			} else {
-				if(deployEnv == "INT") {
-					parameters = [
-                                string(name: 'VERSION', value: env.FUNC_VERSION)
-                        ]
-				} else {
-					parameters = [
-                                string(name: 'VERSION', value: env.VERSION)
-                        ]
-				}
-				if(!isDeploySkipped) {
-					runStage(deployEnv, "${jobName}-Deploy", pipelineParams.deployDisabled, parameters)										
-				} else {
-					markStageAsSkipped(env.STAGE_NAME, true)
-				}
-			}			
+				markStageAsSkipped(env.STAGE_NAME, true)
+			}						
 		}
     }	
     if(deployEnv == "INT") {
         stage("Acceptance") {
-            script {				
-				def parameters = []
-				runStage(deployEnv, "${jobName}-Acceptance", pipelineParams.acceptanceDisabled, parameters)
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
+            script {
+				if(!isStageSkipped) {
+					def parameters = []
+					runStage(deployEnv, "${jobName}-Acceptance", pipelineParams.acceptanceDisabled, parameters)
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.acceptanceDisabled)
+				} else {
+					markStageAsSkipped(env.STAGE_NAME, true)
+				}	 						
 			}
         }
     }
     if(deployEnv == "QAR") {
         stage("Regression") {
-            script {				
-				def parameters = []
-				runStage(deployEnv, "${jobName}-Regression", pipelineParams.regressionDisabled, parameters)
-				markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
+            script {		
+				if(!isStageSkipped) {
+					def parameters = []
+					runStage(deployEnv, "${jobName}-Regression", pipelineParams.regressionDisabled, parameters)
+					markStageAsSkipped(env.STAGE_NAME, pipelineParams.regressionDisabled)
+				} else {
+					markStageAsSkipped(env.STAGE_NAME, true)
+				}				
 			}
         }
     }	

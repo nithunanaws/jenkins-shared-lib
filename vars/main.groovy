@@ -43,8 +43,7 @@ def rollback(def jobName, def isDeployFailed) {
                         string(name: 'FUNC_VERSION', value: env.LAST_STABLE_FUNC_BUILD_VERSION),
                         string(name: 'FAILED_ENV', value: 'INT')
                 ]
-        }
-        
+        }        
         rollbackRun = runJob(jobName, parameters)        
         if(rollbackRun != null && rollbackRun.getResult() == 'SUCCESS') {
             echo "Rollback to version: ${env.LAST_STABLE_BUILD_VERSION} successful"

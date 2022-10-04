@@ -40,7 +40,7 @@ def call(body) {
                 }
                 steps {
                     script {
-                        main.deploy("${env.JOB_NAME}-Functional-Deployment")
+                        main.deploy("${env.JOB_NAME}-Deployment")
                     }
                 }
             }
@@ -52,9 +52,9 @@ def call(body) {
                 }
                 steps {
                     script {
-                        main.deploy("${env.JOB_NAME}-Release-Deployment")
+                        main.deploy("${env.JOB_NAME}-Deployment")
                         if(env.DEPLOY_STATUS  && env.DEPLOY_STATUS == 'SUCCESS') {
-                            main.rollback("${env.JOB_NAME}-Release-Rollback", false)
+                            main.rollback("${env.JOB_NAME}-Rollback", false)
                         }
                     }
                 }
@@ -71,10 +71,10 @@ def call(body) {
                 steps {
                     script {
                         if(env.DEPLOYMENT_TYPE == 'FUNCTIONAL') {
-                            main.rollback("${env.JOB_NAME}-Functional-Rollback", true)
+                            main.rollback("${env.JOB_NAME}-Rollback", true)
                         }  
                         if(env.DEPLOYMENT_TYPE == 'RELEASE') {
-                            main.rollback("${env.JOB_NAME}-Release-Rollback", true)
+                            main.rollback("${env.JOB_NAME}-Rollback", true)
                         }
                     }
                 }
