@@ -16,7 +16,7 @@ def getDeployEnvMap(def deploymentType) {
 	def envs = getDeploymentEnvironments(env.DEPLOYMENT_TYPE)
 	def deployEnvs = envs.split(',')
 	def envList = ['INT','QAF','QAR']
-	def deployEnvMap = []
+	def deployEnvMap = [:]
 	for(env in envList) {
 		if(deployEnvs.contains(env)) {
 			deployEnvMap.put(env, false)
